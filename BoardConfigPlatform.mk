@@ -145,7 +145,7 @@ CUSTOM_APNS_FILE := $(PLATFORM_PATH)/config/apns.xml
 ### SEPOLICY
 include device/qcom/sepolicy-legacy-um/SEPolicy.mk
 BOARD_VENDOR_SEPOLICY_DIRS += device/sony/yoshino-common/sepolicy/vendor
-BOARD_PLAT_PRIVATE_SEPOLICY_DIR += device/sony/yoshino-common/sepolicy/private
+PRODUCT_PRIVATE_SEPOLICY_DIRS += device/sony/yoshino-common/sepolicy/private
 
 ### TREBLE
 # Enable treble
