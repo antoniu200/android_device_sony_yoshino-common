@@ -55,8 +55,8 @@ PRODUCT_COPY_FILES += \
 
 ### POWER
 ifeq ($(TARGET_USE_CUSTOM_POWERHINT),false)
-  PRODUCT_COPY_FILES += \
-      $(PLATFORM_PATH)/config/power/powerhint.json:$(TARGET_COPY_OUT_VENDOR)/etc/powerhint.json
+PRODUCT_COPY_FILES += \
+    $(PLATFORM_PATH)/config/power/powerhint.json:$(TARGET_COPY_OUT_VENDOR)/etc/powerhint.json
 endif
 
 ### QTI_LOW_POWER_WHITELIST
