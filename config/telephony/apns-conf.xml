@@ -305,6 +305,7 @@
   <apn carrier="TeleCable Internet" mcc="214" mnc="06" apn="internet.telecable.es" proxy="" port="" user="telecable" password="telecable" mmsc="" mvno_type="spn" mvno_match_data="Telecable" type="default,supl" />
   <apn carrier="TeleCable MMS" mcc="214" mnc="06" apn="mms.telecable.es" proxy="" port="" user="telecable" password="telecable" mmsc="http://mms.telecable.es/mms/" mmsproxy="212.89.0.84" mmsport="8080" mvno_type="spn" mvno_match_data="Telecable" type="mms" />
   <apn carrier="Movistar" mcc="214" mnc="07" apn="telefonica.es" proxy="" port="8080" user="telefonica" password="telefonica" mmsc="http://mms.movistar.com" mmsproxy="" mmsport="8080" authtype="1" type="default,mms,supl" />
+  <apn carrier="Movistar" mcc="214" mnc="07" apn="ims" type="ims" protocol="IPV4V6" roaming_protocol="IPV4V6" user_visible="false" />
   <apn carrier="Conexión Compartida" mcc="214" mnc="07" apn="movistar.es" user="MOVISTAR" password="MOVISTAR" authtype="1" type="dun" />
   <apn carrier="Jazztel MMS" mcc="214" mnc="07" apn="jazzmms" proxy="" port="" user="" password="" mmsc="http://jazztelmms.com/servlets/mms" mmsproxy="37.132.0.10" mmsport="8080" mvno_type="spn" mvno_match_data="JAZZTEL" type="mms" />
   <apn carrier="Jazztel" mcc="214" mnc="07" apn="jazzinternet" proxy="" port="" user="" password="" mmsc="" mvno_type="spn" mvno_match_data="JAZZTEL" type="default,supl" />
@@ -393,7 +394,7 @@
   <apn carrier="COOPVOCE WEB" mcc="222" mnc="01" apn="web.coopvoce.it" proxy="" port="" user="" password="" mmsc="" mvno_type="spn" mvno_match_data="Coop Mobile" type="default,supl" />
   <apn carrier="COOPVOCE MMS" mcc="222" mnc="01" apn="mms.coopvoce.it" proxy="" port="" user="" password="" mmsc="http://mms.coop.it/servlets/mms" mmsproxy="213.230.130.89" mmsport="80" mvno_type="spn" mvno_match_data="Coop Mobile" authtype="1" type="mms" />
   <apn carrier="Kena Mobile Web" mcc="222" mnc="07" apn="web.kenamobile.it" type="default,supl" protocol="IP" roaming_protocol="IP" />
-  <apn carrier="Kena Mobile MMS" mcc="222" mnc="07" apn="mms.kenamobile.it" type="mms" mmsproxy="10.248.1.12" mmsport="80" mmsc="http://mms.kenamobile.it/" protocol="IP" roaming_protocol="IP" />
+  <apn carrier="Kena Mobile MMS" mcc="222" mnc="07" apn="mms.kenamobile.it" type="mms" mmsproxy="10.248.1.12" mmsport="80" mmsc="http://mms.kenamobile.it/" protocol="IP" roaming_protocol="IP" />
   <apn carrier="Fastweb 4G" mcc="222" mnc="08" apn="apn.fastweb.it" proxy="" port="" user="" password="" mmsc="http://mms.fastweb.it/mms/wapenc" mmsproxy="85.18.189.217" mmsport="8080" mvno_type="spn" mvno_match_data="FASTWEB" authtype="2" type="default,supl,mms" />
   <apn carrier="Iusacell Internet" mcc="222" mnc="010" apn="web.iusacellgsm.mx" user="iusacellgsm" password="iusacellgsm" authtype="0" type="default,supl" />
   <apn carrier="Internet Modem" mcc="222" mnc="010" apn="modem.iusacellgsm.mx" user="iusacellgsm" password="iusacellgsm" type="dun" />
@@ -1104,6 +1105,7 @@
   <apn carrier="MMS" mcc="260" mnc="06" apn="mms" proxy="" port="" mmsproxy="10.10.25.5" mmsport="8080" mmsc="http://10.10.28.164/mms/wapenc" user="" password="" authtype="3" type="mms" />
   <apn carrier="Play INTERNET" mcc="260" mnc="06" apn="internet" proxy="" port="" user="" password="" mmsc="" type="default,supl" />
   <apn carrier="Play MMS" mcc="260" mnc="06" apn="mms" proxy="" port="" user="" password="" mmsc="http://10.10.28.164/mms/wapenc" mmsproxy="10.10.25.5" mmsport="8080" type="mms" />
+  <apn carrier="Play IMS" mcc="260" mnc="06" apn="IMS" type="ims" protocol="IPV4V6" roaming_protocol="IPV4V6" user_visible="false" />
   <apn carrier="Lycamobile PL" mcc="260" mnc="09" apn="data.lycamobile.pl" user="lmpl" password="plus" type="default,supl" />
   <apn carrier="Cyfrowy Polsat INTERNET" mcc="260" mnc="12" apn="internet.cp" proxy="" port="" user="" password="" mmsc="" type="default,supl" />
   <apn carrier="Cyfrowy Polsat MMS" mcc="260" mnc="12" apn="mms.cyfrowypolsat.pl" proxy="" port="" user="" password="" mmsc="http://mms.cyfrowypolsat.pl:8002" mmsproxy="79.171.2.33" mmsport="8080" type="mms" />
@@ -3331,6 +3333,7 @@
   <apn carrier="Telstra Broadband" mcc="505" mnc="01" apn="telstra.internet" user="" password="" type="dun" />
   <apn carrier="Telstra MMS" mcc="505" mnc="01" apn="telstra.mms" proxy="" port="" mmsproxy="10.1.1.180" mmsport="80" mmsc="http://mmsc.telstra.com:8002" user="" password="" type="mms" />
   <apn carrier="Telstra MMS" mcc="505" mnc="01" apn="Telstra.mms" mmsc="http://mmsc.telstra.com:8002" mmsproxy="10.1.1.180" mmsport="80" type="mms" />
+  <apn carrier="Telstra IMS" mcc="505" mnc="01" apn="ims" type="ims" protocol="IPV4V6" roaming_protocol="IPV4V6" user_visible="false" />
   <apn carrier="Telstra Internet" mcc="505" mnc="01" apn="Telstra.wap" type="default,supl" />
   <apn carrier="Telstra w/ Portal" mcc="505" mnc="01" apn="telstra.internet" proxy="10.1.1.181" port="80" mmsc="http://mmsc.telstra.com:8002" mmsproxy="10.1.1.181" mmsport="80" type="default,supl,mms" />
   <apn carrier="Telstra 3G Pay by Time" mcc="505" mnc="01" apn="telstra.pcpack" password="telstra" type="default,supl,mms" />
@@ -3341,6 +3344,7 @@
   <apn carrier="Optus Connect" mcc="505" mnc="02" apn="connect" user="" password="" type="default,supl" />
   <apn carrier="Optus Business Mobile Broadband" mcc="505" mnc="02" apn="yesbusiness" user="" password="" type="default,supl" />
   <apn carrier="Optus MMS" mcc="505" mnc="02" apn="mms" proxy="" port="" mmsproxy="61.88.190.10" mmsport="8070" mmsc="http://mmsc.optus.com.au:8002/" user="" password="" type="mms" />
+  <apn carrier="Optus IMS" mcc="505" mnc="02" apn="ims" type="ims" protocol="IPV4V6" roaming_protocol="IPV4V6" user_visible="false" />
   <apn carrier="Optus Streaming" mcc="505" mnc="02" apn="yesinternet" proxy="172.22.1.3" port="554" mmsc="" user="" password="" type="default,supl" />
   <apn carrier="Exetel" mcc="505" mnc="02" apn="exetel1" type="default,supl" />
   <apn carrier="Optus" mcc="505" mnc="02" apn="internet" type="default,supl" />
@@ -3355,20 +3359,25 @@
   <apn carrier="Vodafone Live!" mcc="505" mnc="03" apn="live.vodafone.com" proxy="10.202.2.60" port="8080" mmsc="" user="" password="" type="default,supl" />
   <apn carrier="Vodafone PXT" mcc="505" mnc="03" apn="live.vodafone.com" proxy="" port="" mmsproxy="10.202.2.60" mmsport="8080" mmsc="http://pxt.vodafone.net.au/pxtsend" user="" password="" type="mms" />
   <apn carrier="Vodafone AU" mcc="505" mnc="03" apn="live.vodafone.com" user="*" password="*" server="*" mmsc="http://pxt.vodafone.net.au/pxtsend" mmsproxy="10.202.2.60" mmsport="8080" type="mms,default,supl" />
+  <apn carrier="Vodafone AU IMS" mcc="505" mnc="03" apn="ims" type="ims" protocol="IPV4V6" roaming_protocol="IPV4V6" user_visible="false" />
   <apn carrier="3 AU" mcc="505" mnc="06" apn="3services" mmsc="http://mmsc.three.net.au:10021/mmsc" mmsproxy="10.176.57.25" mmsport="8799" type="default,supl,mms"/>
   <apn carrier="VF AU PXT" mcc="505" mnc="07" apn="live.vodafone.com" mmsc="http://pxt.vodafone.net.au/pxtsend" mmsproxy="10.202.2.60" mmsport="8080" type="mms" />
   <apn carrier="VF Internet" mcc="505" mnc="07" apn="vfinternet.au" type="default,supl" />
+  <apn carrier="VF AU IMS" mcc="505" mnc="07" apn="ims" type="ims" protocol="IPV4V6" roaming_protocol="IPV4V6" user_visible="false" />
   <apn carrier="Telstra MMS" mcc="505" mnc="11" apn="Telstra.mms" mmsc="http://mmsc.telstra.com:8002" mmsproxy="10.1.1.180" mmsport="80" type="mms" />
   <apn carrier="Telstra Internet" mcc="505" mnc="11" apn="Telstra.wap" type="default,supl" />
+  <apn carrier="Telstra IMS" mcc="505" mnc="11" apn="ims" type="ims" protocol="IPV4V6" roaming_protocol="IPV4V6" user_visible="false" />
   <apn carrier="3Internet" mcc="505" mnc="12" apn="3netaccess" type="default,supl" />
   <apn carrier="3" mcc="505" mnc="12" apn="3services" mmsc="http://mmsc.three.net.au:10021/mmsc" mmsproxy="10.176.57.25" mmsport="8799" type="default,supl,mms" />
   <apn carrier="Lycamobile AU" mcc="505" mnc="19" apn="data.lycamobile.com.au" user="lmau" password="plus" type="default,supl" />
   <apn carrier="Truphone" mcc="505" mnc="38" apn="truphone.com" type="default,supl" />
   <apn carrier="Telstra MMS" mcc="505" mnc="71" apn="Telstra.mms" mmsc="http://mmsc.telstra.com:8002" mmsproxy="10.1.1.180" mmsport="80" type="mms" />
   <apn carrier="Telstra Internet" mcc="505" mnc="71" apn="Telstra.wap" type="default,supl" />
+  <apn carrier="Telstra IMS" mcc="505" mnc="71" apn="ims" type="ims" protocol="IPV4V6" roaming_protocol="IPV4V6" user_visible="false" />
   <apn carrier="Telstra MMS" mcc="505" mnc="72" apn="Telstra.mms" mmsc="http://mmsc.telstra.com:8002" mmsproxy="10.1.1.180" mmsport="80" type="mms" />
   <apn carrier="Telstra Internet" mcc="505" mnc="72" apn="Telstra.wap" type="default,supl" />
   <apn carrier="Telstra Internet" mcc="505" mnc="72" apn="Telstra.wap" proxy="" port="" user="" password="" mmsc="" type="default,supl" />
+  <apn carrier="Telstra IMS" mcc="505" mnc="72" apn="ims" type="ims" protocol="IPV4V6" roaming_protocol="IPV4V6" user_visible="false" />
   <apn carrier="VF AU PXT" mcc="505" mnc="88" apn="live.vodafone.com" mmsc="http://pxt.vodafone.net.au/pxtsend" mmsproxy="10.202.2.60" mmsport="8080" type="mms" />
   <apn carrier="VF Internet" mcc="505" mnc="88" apn="vfinternet.au" type="default,supl" />
   <apn carrier="Optus Internet" mcc="505" mnc="90" apn="internet" type="default,supl" />
@@ -3904,6 +3913,7 @@
   <apn carrier="Movistar CL" mcc="730" mnc="10" apn="web.tmovil.cl" proxy="" port="" user="web" password="web" mmsc="" type="default,supl" />
   <apn carrier="Web Comcel 3GSM" mcc="732" mnc="101" apn="internet.comcel.com.co" user="COMCELWEB" password="COMCELWEB" authtype="1" type="default,supl" />
   <apn carrier="MMS COMCEL 3GSM" mcc="732" mnc="101" apn="mms.comcel.com.co " proxy="" port="" mmsproxy="198.228.90.228" mmsport="8799" mmsc="http://mms.movistar.com.co" user="COMCELMMS" password="COMCELMMS" authtype="1" type="mms" />
+  <apn carrier="IMS COMCEL 3GSM" mcc="732" mnc="101" apn="ims" type="ims" protocol="IPV4V6" roaming_protocol="IPV4V6" user_visible="false" />
   <apn carrier="Movistar CO" mcc="732" mnc="102" apn="internet.movistar.com.co" user="movistar" password="movistar" type="default,supl" />
   <apn carrier="Movistar CO" mcc="732" mnc="102" apn="internet.movistar.com.co" proxy="" port="" user="movistar" password="movistar" mmsc="" type="default,supl" />
   <apn carrier="Movistar CO IMS" mcc="732" mnc="102" apn="ims" type="ims" protocol="IPV4V6" roaming_protocol="IPV4V6" user_visible="false" />
