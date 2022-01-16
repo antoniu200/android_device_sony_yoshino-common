@@ -15,7 +15,3 @@ allow system_app proc_vmallocinfo:file { r_file_perms };
 get_prop(system_app, wfd_prop)
 # dataservice_app
 get_prop(system_app, vendor_cnd_vendor_prop)
-
-# Allow Xperia Parts to enable/disable SmartStamina
-set_prop(system_app, vendor_clearpad_prop)
-get_prop(system_app, vendor_clearpad_prop)
