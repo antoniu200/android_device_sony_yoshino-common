@@ -85,12 +85,12 @@ PRODUCT_PACKAGES += \
 ### SERVICES
 # AUDIO
 PRODUCT_PACKAGES += \
-    android.hardware.audio@4.0-impl \
+    android.hardware.audio@4.0-impl:32 \
     android.hardware.audio@2.0-service \
-    android.hardware.audio.effect@4.0-impl \
+    android.hardware.audio.effect@4.0-impl:32 \
     android.hardware.audio.effect@2.0-service \
     android.hardware.soundtrigger@2.2-impl \
-    android.hardware.soundtrigger@2.0-service
+    android.hardware.soundtrigger@2.0-service:32
 
 # BLUETOOTH
 PRODUCT_PACKAGES += \
@@ -116,7 +116,7 @@ PRODUCT_PACKAGES += \
 
 # DRM
 PRODUCT_PACKAGES += \
-    android.hardware.drm@1.0-impl \
+    android.hardware.drm@1.0-impl:64 \
     android.hardware.drm@1.0-service \
     android.hardware.drm@1.1.vendor \
     android.hardware.drm@1.4-service.clearkey
@@ -182,7 +182,7 @@ PRODUCT_PACKAGES += \
 
 # RADIO
 PRODUCT_PACKAGES += \
-    android.hardware.broadcastradio@1.0-impl \
+    android.hardware.broadcastradio@1.0-impl:64 \
     android.hardware.radio@1.1 \
     android.hardware.radio.config@1.0 \
     android.hardware.radio.config@1.0.vendor \
@@ -202,7 +202,7 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     android.frameworks.sensorservice@1.0 \
     android.frameworks.sensorservice@1.0.vendor \
-    android.hardware.sensors@1.0-impl \
+    android.hardware.sensors@1.0-impl:64 \
     android.hardware.sensors@1.0-service
 
 # USB
@@ -217,12 +217,12 @@ PRODUCT_PACKAGES += \
 
 # VIBRATOR
 PRODUCT_PACKAGES += \
-    android.hardware.vibrator@1.0-impl \
+    android.hardware.vibrator@1.0-impl:64 \
     android.hardware.vibrator@1.0-service
 
 # VR
 PRODUCT_PACKAGES += \
-    android.hardware.vr@1.0-impl \
+    android.hardware.vr@1.0-impl:64 \
     android.hardware.vr@1.0-service
 
 # WEAVER
