@@ -28,7 +28,6 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceFragment;
 import androidx.preference.SwitchPreference;
-import com.android.internal.telephony.RILConstants;
 
 import static com.yoshino.parts.Constants.*;
 
@@ -123,12 +122,12 @@ public class DeviceSettingsFragment extends PreferenceFragment implements Prefer
             nsLowerNetwork.setOnPreferenceClickListener(preference -> {
                 final ContentResolver resolver = preference.getContext().getContentResolver();
                 int network = getLowerNetwork(resolver);
-                if(network == RILConstants.NETWORK_MODE_WCDMA_PREF)
-                    network = RILConstants.NETWORK_MODE_GSM_ONLY;
-                else if(network == RILConstants.NETWORK_MODE_GSM_ONLY)
-                    network = RILConstants.NETWORK_MODE_GSM_UMTS;
+                if(network == TelephonyManager.NETWORK_MODE_WCDMA_PREF)
+                    network = TelephonyManager.NETWORK_MODE_GSM_ONLY;
+                else if(network == TelephonyManager.NETWORK_MODE_GSM_ONLY)
+                    network = TelephonyManager.NETWORK_MODE_GSM_UMTS;
                 else
-                    network = RILConstants.NETWORK_MODE_WCDMA_PREF;
+                    network = TelephonyManager.NETWORK_MODE_WCDMA_PREF;
                 Settings.System.putInt(resolver, NS_LOWER_NETWORK, network);
                 updateLowerNetworkPref(preference, true);
                 return true;
@@ -197,16 +196,16 @@ public class DeviceSettingsFragment extends PreferenceFragment implements Prefer
 
     private static int getLowerNetwork(ContentResolver resolver)
     {
-        return Settings.System.getInt(resolver, NS_LOWER_NETWORK, RILConstants.NETWORK_MODE_WCDMA_PREF);
+        return Settings.System.getInt(resolver, NS_LOWER_NETWORK, TelephonyManager.NETWORK_MODE_WCDMA_PREF);
     }
 
     private static String getNetworkName(int network) {
         switch(network) {
-            case RILConstants.NETWORK_MODE_GSM_ONLY:
+            case TelephonyManager.NETWORK_MODE_GSM_ONLY:
                 return "2G";
-            case RILConstants.NETWORK_MODE_WCDMA_PREF:
+            case TelephonyManager.NETWORK_MODE_WCDMA_PREF:
                 return "3G";
-            case RILConstants.NETWORK_MODE_GSM_UMTS:
+            case TelephonyManager.NETWORK_MODE_GSM_UMTS:
                 return "2G/3G";
             default:
                 return "N/A";

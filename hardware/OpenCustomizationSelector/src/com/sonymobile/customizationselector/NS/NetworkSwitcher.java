@@ -13,7 +13,6 @@ import android.telephony.CellSignalStrength;
 import android.telephony.RadioAccessFamily;
 import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
-import com.android.internal.telephony.RILConstants;
 import com.sonymobile.customizationselector.CSLog;
 import com.sonymobile.customizationselector.CommonUtil;
 
@@ -79,7 +78,7 @@ public class NetworkSwitcher extends Service {
      * Get the subscription IDs based on phone count and sim status.
      */
     private int getSubID() {
-        int[] subs = null;
+        int[] subs;
         if (CommonUtil.isDualSim(getApplicationContext())) {
             d("initSubID: device is dual sim");
             subs = SubscriptionManager.getSubId(Settings.System.getInt(getApplicationContext().getContentResolver(), "ns_slot", 0));
@@ -108,7 +107,7 @@ public class NetworkSwitcher extends Service {
 
         TelephonyManager tm = getSystemService(TelephonyManager.class).createForSubscriptionId(subID);
 
-        int currentNetwork = getPreferredNetwork(subID);
+        long currentNetwork = getPreferredNetwork(tm);
         if (isLTE(currentNetwork)) {
             setOriginalNetwork(subID, currentNetwork);
             changeNetwork(tm, subID, getLowerNetwork());
@@ -169,84 +168,54 @@ public class NetworkSwitcher extends Service {
      * @param subID          the subscription ID from [subscriptionsChangedListener]
      * @param newNetwork     network to change to
      */
-    private void changeNetwork(TelephonyManager tm, int subID, int newNetwork) {
-        d("changeNetwork: To be changed to = " + networkToString(newNetwork));
+    private void changeNetwork(TelephonyManager tm, int subID, long newNetwork) {
+        d("changeNetwork: To be changed to = " + TelephonyManager.convertNetworkTypeBitmaskToString(newNetwork));
 
-        if (tm.setPreferredNetworkTypeBitmask(RadioAccessFamily.getRafFromNetworkType(newNetwork))) {
-            Settings.Global.putInt(getApplicationContext().getContentResolver(), Settings.Global.PREFERRED_NETWORK_MODE + subID, newNetwork);
-            d("changeNetwork: Successfully changed to " + networkToString(newNetwork));
-        }
+        try {
+            tm.setAllowedNetworkTypesForReason(TelephonyManager.ALLOWED_NETWORK_TYPES_REASON_USER, newNetwork);
+        } catch (IllegalStateException e) {
+            d("changeNetwork: Failed to change network, no telephony service!");
+            return;
+	}
+        d("changeNetwork: Successfully changed to " + TelephonyManager.convertNetworkTypeBitmaskToString(newNetwork));
     }
 
     /**
-     * Get the current in-use network mode preference
-     *
-     * @return default 3G {@link RILConstants#NETWORK_MODE_WCDMA_PREF} if no pref stored
+     * Get the current in-use network mode preference, i.e. RAF
+     * <p>
+     * There are no defaults other than {@link #INVALID_NETWORK}
      */
-    private int getPreferredNetwork(int subID) {
-        return Settings.Global.getInt(getApplicationContext().getContentResolver(),
-                Settings.Global.PREFERRED_NETWORK_MODE + subID, RILConstants.NETWORK_MODE_WCDMA_PREF);
+    private @TelephonyManager.NetworkTypeBitMask long getPreferredNetwork(TelephonyManager tm) {
+        return tm.getAllowedNetworkTypesForReason(TelephonyManager.ALLOWED_NETWORK_TYPES_REASON_USER);
     }
 
     /**
      * Get the original network mode preference
      *
-     * @return Stored value, defaults to {@link RILConstants#NETWORK_MODE_LTE_GSM_WCDMA}
+     * @return Stored value, defaults to LTE, GSM & WCDMA
      */
-    private int getOriginalNetwork(int subID) {
-        return Settings.System.getInt(getApplicationContext().getContentResolver(), NS_PREFERRED + subID,
-                                      RILConstants.NETWORK_MODE_LTE_GSM_WCDMA);
+    private @TelephonyManager.NetworkTypeBitMask long getOriginalNetwork(int subID) {
+        return Settings.System.getLong(getApplicationContext().getContentResolver(), NS_PREFERRED + subID,
+                                       RadioAccessFamily.getRafFromNetworkType(TelephonyManager.NETWORK_MODE_LTE_GSM_WCDMA));
     }
 
-    private void setOriginalNetwork(int subID, int network) {
-        Settings.System.putInt(getApplicationContext().getContentResolver(), NS_PREFERRED + subID, network);
+    private void setOriginalNetwork(int subID, @TelephonyManager.NetworkTypeBitMask long network) {
+        Settings.System.putLong(getApplicationContext().getContentResolver(), NS_PREFERRED + subID, network);
     }
 
     /**
      * Returns whether @param network is LTE or not
      */
-    private boolean isLTE(int network) {
-        int lteMask = RadioAccessFamily.RAF_LTE | RadioAccessFamily.RAF_LTE_CA;
-        return (RadioAccessFamily.getRafFromNetworkType(network) & lteMask) != 0;
+    private boolean isLTE(@TelephonyManager.NetworkTypeBitMask long network) {
+        return (network & TelephonyManager.NETWORK_CLASS_BITMASK_4G) != 0;
     }
 
     /**
      * This method returns the lower network to switch to
      */
     private int getLowerNetwork() {
-        return Settings.System.getInt(getApplicationContext().getContentResolver(), NS_LOWER_NETWORK, RILConstants.NETWORK_MODE_WCDMA_PREF);
-    }
-
-    /**
-     * Get the string version of the variables.
-     * <p>
-     * Too lazy to refer the {@link RILConstants}
-     */
-    private String networkToString(int network) {
-        switch (network) {
-            case RILConstants.NETWORK_MODE_WCDMA_PREF:
-                return "NETWORK_MODE_WCDMA_PREF";
-            case RILConstants.NETWORK_MODE_WCDMA_ONLY:
-                return "NETWORK_MODE_WCDMA_ONLY";
-            case RILConstants.NETWORK_MODE_GSM_UMTS:
-                return "NETWORK_MODE_GSM_UMTS";
-            case RILConstants.NETWORK_MODE_GSM_ONLY:
-                return "NETWORK_MODE_GSM_ONLY";
-            case RILConstants.NETWORK_MODE_LTE_GSM_WCDMA:
-                return "NETWORK_MODE_LTE_GSM_WCDMA";
-            case RILConstants.NETWORK_MODE_LTE_ONLY:
-                return "NETWORK_MODE_LTE_ONLY";
-            case RILConstants.NETWORK_MODE_LTE_WCDMA:
-                return "NETWORK_MODE_LTE_WCDMA";
-            case RILConstants.NETWORK_MODE_GLOBAL:
-                return "NETWORK_MODE_GLOBAL";
-            case RILConstants.NETWORK_MODE_LTE_TDSCDMA_CDMA_EVDO_GSM_WCDMA:
-                return "NETWORK_MODE_LTE_TDSCDMA_CDMA_EVDO_GSM_WCDMA";
-            case RILConstants.NETWORK_MODE_LTE_CDMA_EVDO_GSM_WCDMA:
-                return "NETWORK_MODE_LTE_CDMA_EVDO_GSM_WCDMA";
-            default:
-                return "N/A(" + network + ")";
-        }
+        return RadioAccessFamily.getRafFromNetworkType(
+            Settings.System.getInt(getApplicationContext().getContentResolver(), NS_LOWER_NETWORK, TelephonyManager.NETWORK_MODE_WCDMA_PREF));
     }
 
     /**
