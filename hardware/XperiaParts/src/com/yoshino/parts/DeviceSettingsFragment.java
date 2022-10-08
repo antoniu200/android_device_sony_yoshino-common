@@ -193,6 +193,11 @@ public class DeviceSettingsFragment extends PreferenceFragment implements Prefer
             }
             return true;
         });
+
+        SwitchPreference modemPref = findPreference(CS_RE_APPLY_MODEM);
+        assert modemPref != null;
+        modemPref.setChecked(Settings.System.getInt(modemPref.getContext().getContentResolver(), CS_RE_APPLY_MODEM, 0) == 1);
+        modemPref.setOnPreferenceChangeListener(this);
     }
 
     private static int getLowerNetwork(ContentResolver resolver)
@@ -233,6 +238,8 @@ public class DeviceSettingsFragment extends PreferenceFragment implements Prefer
                 break;
             case NS_SERVICE:
                 updateLowerNetworkPref(findPreference(NS_LOWER_NETWORK), enabled);
+                break;
+            case CS_RE_APPLY_MODEM:
                 break;
             default:
                 return false;
