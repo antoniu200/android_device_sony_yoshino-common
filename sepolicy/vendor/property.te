@@ -1,5 +1,6 @@
 # property.te
 
+system_internal_prop(cf_graphics_config_prop)
 system_internal_prop(secureadb_prop)
 system_internal_prop(semc_sim_prop)
 system_internal_prop(semc_version_prop)

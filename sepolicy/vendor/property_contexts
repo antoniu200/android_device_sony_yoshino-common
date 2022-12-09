@@ -13,6 +13,12 @@ persist.vendor.wigig.npt.            u:object_r:wigig_prop:s0
 
 hw.wfd.                              u:object_r:wfd_prop:s0
 
+ro.vendor.hwc.drm.device u:object_r:cf_graphics_config_prop:s0 exact string
+vendor.hwc.drm.device u:object_r:cf_graphics_config_prop:s0 exact string
+vendor.hwc.drm.primary_display_order u:object_r:cf_graphics_config_prop:s0 exact string
+vendor.hwc.drm.use_overlay_planes u:object_r:cf_graphics_config_prop:s0 exact int
+vendor.hwc.drm.scale_with_gpu u:object_r:cf_graphics_config_prop:s0 exact int
+
 init.taimport                        u:object_r:taimport_prop:s0
 
 persist.debug.wfd.appmonitoring      u:object_r:debug_wfd_prop:s0
