@@ -154,7 +154,9 @@ ifneq ($(TARGET_USE_YOSHINO_LIGHT_SERVICE),true)
         android.hardware.light@2.0-service
 else
     TARGET_PROVIDES_LIBLIGHT := true
-    PRODUCT_PACKAGES += android.hardware.light@2.0-service.yoshino
+    PRODUCT_PACKAGES += \
+        android.hardware.light@2.0.vendor:32 \
+        android.hardware.light@2.0-service.yoshino
 endif
 
 # MEMTRACK

@@ -32,5 +32,5 @@ cc_binary {
         "libhidlbase",
         "android.hardware.light@2.0",
     ],
-    proprietary: true,
+    vendor: true,
 }
