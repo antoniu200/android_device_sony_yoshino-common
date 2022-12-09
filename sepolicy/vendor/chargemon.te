@@ -11,6 +11,7 @@ unix_socket_connect(chargemon, tad, tad)
 allow chargemon sysfs_battery_supply:dir { r_dir_perms };
 allow chargemon sysfs_battery_supply:file { rw_file_perms };
 allow chargemon sysfs_battery_supply:lnk_file { r_file_perms };
+r_dir_file(chargemon, sysfs_batteryinfo)
 
 # wake_lock
 allow chargemon sysfs_wake_lock:file { rw_file_perms };
