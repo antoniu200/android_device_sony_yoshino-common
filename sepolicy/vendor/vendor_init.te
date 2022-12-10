@@ -68,6 +68,7 @@ set_prop(vendor_init, vendor_mmi_prop)
 set_prop(vendor_init, vendor_persist_camera_prop)
 set_prop(vendor_init, vendor_qcom_ims_prop)
 set_prop(vendor_init, vendor_rild_libpath_prop)
+set_prop(vendor_init, vendor_ultradim_prop)
 userdebug_or_eng(`
 	set_prop(vendor_init, vendor_sensors_dbg_prop)
 ')
