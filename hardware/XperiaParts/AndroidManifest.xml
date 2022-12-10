@@ -54,6 +54,7 @@
         <service
             android:name="com.yoshino.parts.QSUltraDim"
             android:icon="@drawable/ic_ultra_dim"
+            android:exported="true"
             android:label="@string/ultra_dim_name"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
 
