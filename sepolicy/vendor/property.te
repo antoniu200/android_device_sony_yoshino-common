@@ -14,6 +14,7 @@ type vendor_clearpad_prop, property_type;
 type vendor_cover_state_prop, property_type;
 type vendor_pcc_mdp_prop, property_type;
 type vendor_semc_version_cust_active_prop, property_type;
+type vendor_somc_camera_prop, property_type;
 type vendor_somc_hdcp_prop, property_type;
 type vendor_ultradim_prop, property_type;
 type wfd_prop, property_type;
