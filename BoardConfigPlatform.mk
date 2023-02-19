@@ -72,6 +72,10 @@ BOARD_ROOT_EXTRA_FOLDERS := ocm
 # Build ext4 tools - system/vold
 TARGET_USERIMAGES_USE_EXT4 := true
 
+# Build vendor.img
+BOARD_VENDORIMAGE_FILE_SYSTEM_TYPE := ext4
+TARGET_COPY_OUT_VENDOR := vendor
+
 ### DEXPREOPT
 # Enable dexpreopt for everything to speed boot time
 ifeq ($(HOST_OS),linux)
@@ -142,6 +146,7 @@ USE_OPENGL_RENDERER := true
 TARGET_USES_ION := true
 
 ### HIDL
+BOARD_VNDK_VERSION := current
 DEVICE_FRAMEWORK_MANIFEST_FILE := $(PLATFORM_PATH)/framework_manifest.xml
 DEVICE_MANIFEST_FILE := $(PLATFORM_PATH)/manifest.xml
 DEVICE_MATRIX_FILE := $(PLATFORM_PATH)/compatibility_matrix.xml
