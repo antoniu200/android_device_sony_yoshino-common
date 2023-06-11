@@ -24,6 +24,13 @@
             android:summary="@string/glove_mode_summary"
             android:title="@string/glove_mode" />
 
+        <SwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/ic_outline_touch_app_24"
+            android:key="config_fingerprintWakeAndUnlock"
+            android:summary="@string/config_fingerprintWakeAndUnlock_summary"
+            android:title="@string/config_fingerprintWakeAndUnlock" />
+
          <SwitchPreference
             android:defaultValue="false"
             android:icon="@drawable/ic_outline_touch_app_24"

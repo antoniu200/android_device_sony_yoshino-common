@@ -23,6 +23,7 @@ import android.os.Bundle;
 import android.os.SystemProperties;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragment;
 import androidx.preference.SwitchPreference;
@@ -30,6 +31,7 @@ import androidx.preference.SwitchPreference;
 import static com.yoshino.parts.Constants.*;
 
 public class DeviceSettingsFragment extends PreferenceFragment implements Preference.OnPreferenceChangeListener {
+    private static final String TAG = "XperiaPartsSettings";
 
     @Override
     public void onCreatePreferences(Bundle bundle, String key) {
@@ -39,6 +41,11 @@ public class DeviceSettingsFragment extends PreferenceFragment implements Prefer
         assert glovePref != null;
         glovePref.setChecked(Settings.System.getInt(glovePref.getContext().getContentResolver(), GLOVE_MODE, 0) == 1);
         glovePref.setOnPreferenceChangeListener(this);
+
+        SwitchPreference fpPref = findPreference(FINGERPRINT_WAKE_UNLOCK);
+        assert fpPref != null;
+        fpPref.setChecked(Settings.System.getInt(fpPref.getContext().getContentResolver(), FINGERPRINT_WAKE_UNLOCK, 0) == 1);
+        fpPref.setOnPreferenceChangeListener(this);
 
         SwitchPreference smartStaminPref = findPreference(SMART_STAMINA_MODE);
         assert smartStaminPref != null;
@@ -231,6 +238,7 @@ public class DeviceSettingsFragment extends PreferenceFragment implements Prefer
             case TelephonyManager.NETWORK_MODE_GSM_UMTS:
                 return "2G/3G";
             default:
+                Log.e(TAG, "Unknown network: " + network);
                 return "N/A";
         }
     }
@@ -252,11 +260,13 @@ public class DeviceSettingsFragment extends PreferenceFragment implements Prefer
                 SystemProperties.set(SMART_STAMINA_PROP, (boolean) o ? "1" : "0");
                 break;
             case CS_NOTIFICATION:
+            case FINGERPRINT_WAKE_UNLOCK:
                 break;
             case NS_SERVICE:
                 updateLowerNetworkPref(findPreference(NS_LOWER_NETWORK), enabled);
                 break;
             default:
+                Log.e(TAG, "Unknown preference: " + preference.getKey());
                 return false;
         }
         Settings.System.putInt(preference.getContext().getContentResolver(), preference.getKey(), enabled ? 1 : 0);
