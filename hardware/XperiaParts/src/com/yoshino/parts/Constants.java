@@ -18,8 +18,6 @@ public class Constants {
 
     public static final String MODEM_SWITCHER = "modem_sw";
 
-    public static final String FINGERPRINT_WAKE_UNLOCK = "config_fingerprintWakeAndUnlock";
-
     public static final String GLOVE_MODE = "glove_mode";
     public static final String GLOVE_PROP = "persist.sys.touch.glove_mode";
 
