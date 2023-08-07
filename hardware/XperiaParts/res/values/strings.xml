@@ -18,8 +18,6 @@
     <string name="app_name">XperiaParts</string>
 
     <string name="gesture">Gesture</string>
-    <string name="config_fingerprintWakeAndUnlock">Wake &amp; unlock</string>
-    <string name="config_fingerprintWakeAndUnlock_summary">Directly unlock the device when touching the power button with a registered finger</string>
     <string name="glove_mode">Glove Mode</string>
     <string name="glove_mode_summary">Allow screen to respond to touch with gloves on</string>
     <string name="smart_stamina_mode">Smart-Stamina Mode</string>

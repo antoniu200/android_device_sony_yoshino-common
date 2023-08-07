@@ -43,11 +43,6 @@ public class DeviceSettingsFragment extends PreferenceFragment implements Prefer
         glovePref.setChecked(Settings.System.getInt(glovePref.getContext().getContentResolver(), GLOVE_MODE, 0) == 1);
         glovePref.setOnPreferenceChangeListener(this);
 
-        SwitchPreference fpPref = findPreference(FINGERPRINT_WAKE_UNLOCK);
-        assert fpPref != null;
-        fpPref.setChecked(Settings.System.getInt(fpPref.getContext().getContentResolver(), FINGERPRINT_WAKE_UNLOCK, 0) == 1);
-        fpPref.setOnPreferenceChangeListener(this);
-
         SwitchPreference smartStaminPref = findPreference(SMART_STAMINA_MODE);
         assert smartStaminPref != null;
         smartStaminPref.setChecked(Settings.System.getInt(smartStaminPref.getContext().getContentResolver(), SMART_STAMINA_MODE, 0) == 1);
@@ -261,7 +256,6 @@ public class DeviceSettingsFragment extends PreferenceFragment implements Prefer
                 SystemProperties.set(SMART_STAMINA_PROP, (boolean) o ? "1" : "0");
                 break;
             case CS_NOTIFICATION:
-            case FINGERPRINT_WAKE_UNLOCK:
                 break;
             case NS_SERVICE:
                 updateLowerNetworkPref(findPreference(NS_LOWER_NETWORK), enabled);
