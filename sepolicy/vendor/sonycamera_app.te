@@ -1,0 +1,43 @@
+type sonycamera_app, domain;
+typeattribute sonycamera_app coredomain;
+typeattribute sonycamera_app system_executes_vendor_violators;
+
+app_domain(sonycamera_app);
+
+r_dir_file(sonycamera_app, adsprpcd_file)
+allow sonycamera_app sysfs_kgsl:file r_file_perms;
+allow sonycamera_app sysfs_kgsl:lnk_file read;
+allow sonycamera_app xdsp_device:chr_file r_file_perms;
+
+get_prop(sonycamera_app, vendor_adsprpc_prop)
+
+allow sonycamera_app activity_service:service_manager find;
+allow sonycamera_app activity_task_service:service_manager find;
+allow sonycamera_app audio_service:service_manager find;
+allow sonycamera_app audioserver_service:service_manager find;
+allow sonycamera_app autofill_service:service_manager find;
+allow sonycamera_app batteryproperties_service:service_manager find;
+allow sonycamera_app batterystats_service:service_manager find;
+allow sonycamera_app cameraserver_service:service_manager find;
+allow sonycamera_app content_capture_service:service_manager find;
+allow sonycamera_app device_policy_service:service_manager find;
+allow sonycamera_app device_state_service:service_manager find;
+allow sonycamera_app game_service:service_manager find;
+allow sonycamera_app gpu_service:service_manager find;
+allow sonycamera_app hal_secd_hwservice:hwservice_manager find;
+allow sonycamera_app hint_service:service_manager find;
+allow sonycamera_app idd_service:service_manager find;
+allow sonycamera_app location_service:service_manager find;
+allow sonycamera_app mediaextractor_service:service_manager find;
+allow sonycamera_app mediametrics_service:service_manager find;
+allow sonycamera_app mediaserver_service:service_manager find;
+allow sonycamera_app package_native_service:service_manager find;
+allow sonycamera_app sensorservice_service:service_manager find;
+allow sonycamera_app surfaceflinger_service:service_manager find;
+allow sonycamera_app tethering_service:service_manager find;
+allow sonycamera_app thermal_service:service_manager find;
+allow sonycamera_app trust_service:service_manager find;
+allow sonycamera_app wifi_service:service_manager find;
+
+binder_call(sonycamera_app, gpuservice)
+binder_call(sonycamera_app, hal_secd_default)
