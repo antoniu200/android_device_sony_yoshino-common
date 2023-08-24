@@ -32,8 +32,8 @@ allow sonycamera_app tethering_service:service_manager find;
 allow sonycamera_app thermal_service:service_manager find;
 allow sonycamera_app trust_service:service_manager find;
 allow sonycamera_app wifi_service:service_manager find;
-# Don't log attempts to look for idd
-dontaudit sonycamera_app default_android_hwservice:hwservice_manager find;
+
+allow sonycamera_app idd_service:service_manager find;
 
 binder_call(sonycamera_app, gpuservice)
 binder_call(sonycamera_app, hal_secd_default)
