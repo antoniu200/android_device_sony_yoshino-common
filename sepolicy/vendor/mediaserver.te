@@ -1,3 +1,4 @@
 # mediaserver.te
 
 binder_call(mediaserver, cacaoserver)
+get_prop(mediaserver, exported_camera_prop)
