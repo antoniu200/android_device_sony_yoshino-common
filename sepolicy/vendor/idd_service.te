@@ -1,0 +1,3 @@
+type idd_service, vendor_service, service_manager_type;
+
+typeattribute idd_service coredomain;

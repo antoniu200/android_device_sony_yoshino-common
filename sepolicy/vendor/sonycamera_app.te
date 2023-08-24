@@ -39,5 +39,7 @@ allow sonycamera_app thermal_service:service_manager find;
 allow sonycamera_app trust_service:service_manager find;
 allow sonycamera_app wifi_service:service_manager find;
 
+allow sonycamera_app idd_service:service_manager find;
+
 binder_call(sonycamera_app, gpuservice)
 binder_call(sonycamera_app, hal_secd_default)
