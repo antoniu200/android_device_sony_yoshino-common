@@ -8,3 +8,9 @@ allow priv_app bt_firmware_file:filesystem getattr;
 allow priv_app firmware_file:filesystem getattr;
 # Prohibited by neverallow rules
 dontaudit priv_app mnt_vendor_file:dir search;
+
+
+# Known issue: b/303319090
+# Actually gmscore_app, but only on Android 11+
+dontaudit priv_app kernel:security read_policy;
+
