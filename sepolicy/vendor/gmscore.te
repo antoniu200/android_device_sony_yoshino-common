@@ -1,0 +1,2 @@
+# Known issue: b/303319090
+dontaudit gmscore_app kernel:security read_policy;
