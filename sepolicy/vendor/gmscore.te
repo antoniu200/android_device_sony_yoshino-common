@@ -1,2 +1,5 @@
 binder_call(gmscore_app, hal_memtrack_default)
 hal_client_domain(gmscore_app, hal_memtrack)
+
+# Known issue: b/303319090
+dontaudit gmscore_app kernel:security read_policy;
