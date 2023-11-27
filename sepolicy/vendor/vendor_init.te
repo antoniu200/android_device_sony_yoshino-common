@@ -15,7 +15,7 @@ allow vendor_init {
 allow vendor_init rootfs:dir { create rw_dir_perms };
 allow vendor_init tmpfs:dir { create rw_dir_perms };
 
-allow vendor_init tad_block_device:blk_file { setattr };
+allow vendor_init tad_block_device:blk_file setattr;
 
 # Allow vendor_init to write to sysfs_ssr_toggle
 allow vendor_init sysfs_ssr_toggle:file w_file_perms;
@@ -24,14 +24,14 @@ allow vendor_init sysfs_ssr_toggle:file w_file_perms;
 set_prop(vendor_init, vendor_power_prop)
 
 # /proc/dirty
-allow vendor_init proc_dirty:file { rw_file_perms };
-allow vendor_init proc_dirty_ratio:file { rw_file_perms };
+allow vendor_init proc_dirty:file rw_file_perms;
+allow vendor_init proc_dirty_ratio:file rw_file_perms;
 
 # /proc/dmesg_
-allow vendor_init proc_security:file { rw_file_perms };
+allow vendor_init proc_security:file rw_file_perms;
 
 # /proc/cmdline
-allow vendor_init proc_cmdline:file { getattr };
+allow vendor_init proc_cmdline:file getattr;
 
 # Restorecon for sony-modem-switcher
 # /dev/block/bootdevice/by-name/TA
@@ -43,7 +43,7 @@ allow vendor_init modem_efs_partition_device:lnk_file relabelto;
 allow vendor_init tad_block_device:lnk_file relabelto;
 
 # /dev/sockets
-allow vendor_init wpa_socket:dir { setattr };
+allow vendor_init wpa_socket:dir setattr;
 
 # /dev/pts
-allow vendor_init devpts:chr_file { rw_file_perms };
+allow vendor_init devpts:chr_file rw_file_perms;

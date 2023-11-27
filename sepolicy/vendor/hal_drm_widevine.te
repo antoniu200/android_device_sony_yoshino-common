@@ -1,7 +1,7 @@
 # hal_drm_widevine.te
 
-allow hal_drm_widevine hal_perf_hwservice:hwservice_manager { find };
-allow hal_drm_widevine hal_secd_hwservice:hwservice_manager { find };
+allow hal_drm_widevine hal_perf_hwservice:hwservice_manager find;
+allow hal_drm_widevine hal_secd_hwservice:hwservice_manager find;
 
 get_prop(hal_drm_widevine, vendor_somc_hdcp_prop)
 

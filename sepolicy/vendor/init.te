@@ -4,7 +4,7 @@
 allow init oem_block_device:lnk_file relabelto;
 
 # /mnt/qns
-allow init qns_file:dir { mounton };
+allow init qns_file:dir mounton;
 
 # /dev/socket/cammw_tintless
 allow init camera_somc_socket:sock_file create_file_perms;
@@ -16,7 +16,7 @@ allow init dpmwrapper_socket:sock_file create_file_perms;
 allow init secd_devsec_socket:sock_file create_file_perms;
 
 # Allow loading kscl.ko etc.
-allow init system_file:system { module_load };
+allow init system_file:system module_load;
 
 # Allow our init extension to read from TA
 unix_socket_connect(init, tad, tad)
@@ -40,17 +40,17 @@ allow init bt_firmware_file:filesystem getattr;
 allow init firmware_file:filesystem getattr;
 
 # TA
-allow init tad_block_device:blk_file { setattr };
+allow init tad_block_device:blk_file setattr;
 
 # debugfs
-allow init debugfs:dir { mounton };
+allow init debugfs:dir mounton;
 
 # perfservice
 allow init servicemanager:binder { call transfer };
 
 # sysfs
-allow init sysfs:file { setattr };
-allow init sysfs_graphics:lnk_file { r_file_perms };
+allow init sysfs:file setattr;
+allow init sysfs_graphics:lnk_file r_file_perms;
 
 # toolbox
-allow init vendor_toolbox_exec:file { r_file_perms };
+allow init vendor_toolbox_exec:file r_file_perms;
