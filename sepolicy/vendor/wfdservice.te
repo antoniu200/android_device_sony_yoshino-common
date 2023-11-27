@@ -6,5 +6,5 @@ unix_socket_connect(wfdservice, property, init)
 set_prop(wfdservice, wfd_prop)
 allow wfdservice property_socket:sock_file write;
 
-allow wfdservice wfd_vendor_data_file:dir { rw_dir_perms };
-allow wfdservice wfd_vendor_data_file:file { rw_file_perms };
+allow wfdservice wfd_vendor_data_file:dir rw_dir_perms;
+allow wfdservice wfd_vendor_data_file:file rw_file_perms;
