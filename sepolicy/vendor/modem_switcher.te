@@ -16,10 +16,10 @@ binder_call(modem_switcher, hal_miscta_default)
 get_prop(modem_switcher, hwservicemanager_prop)
 get_prop(modem_switcher, vendor_semc_version_cust_active_prop)
 
-allow modem_switcher self:capability { chown };
+allow modem_switcher self:capability chown;
 
-allow modem_switcher hidl_memory_hwservice:hwservice_manager { find };
-allow modem_switcher hal_miscta_hwservice:hwservice_manager { find };
+allow modem_switcher hidl_memory_hwservice:hwservice_manager find;
+allow modem_switcher hal_miscta_hwservice:hwservice_manager find;
 
 allow modem_switcher hwservicemanager:binder { call transfer };
 allow modem_switcher hal_miscta_default:binder { call transfer };

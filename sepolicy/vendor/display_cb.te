@@ -14,8 +14,8 @@ binder_call(display_cb, hal_display_color_default)
 binder_call(display_cb, hal_graphics_composer_default)
 vndbinder_use(display_cb)
 
-allow display_cb hal_display_color_hwservice:hwservice_manager { find };
-allow display_cb qdisplay_service:service_manager { find };
+allow display_cb hal_display_color_hwservice:hwservice_manager find;
+allow display_cb qdisplay_service:service_manager find;
 
 # /sys/devices/soc/800f000.qcom,spmi
 r_dir_file(display_cb, sysfs_mdss_dsi_panel)

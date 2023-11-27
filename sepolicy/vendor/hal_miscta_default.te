@@ -9,4 +9,4 @@ unix_socket_connect(hal_miscta_default, tad, tad)
 
 binder_call(hal_miscta_default, hal_allocator)
 
-allow hal_miscta_default hidl_memory_hwservice:hwservice_manager { find };
+allow hal_miscta_default hidl_memory_hwservice:hwservice_manager find;

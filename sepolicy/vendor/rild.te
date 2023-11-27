@@ -1,8 +1,8 @@
 # rild.te
 
 binder_call(rild, hal_secd_default)
-# NOT ALLOWED allow rild default_android_hwservice:hwservice_manager { find };
-allow rild hal_secd_hwservice:hwservice_manager { find };
+# NOT ALLOWED allow rild default_android_hwservice:hwservice_manager find;
+allow rild hal_secd_hwservice:hwservice_manager find;
 
 unix_socket_connect(rild, tad, tad)
 
@@ -10,5 +10,5 @@ get_prop(rild, sony_prop)
 get_prop(rild, vendor_semc_version_cust_active_prop)
 set_prop(rild, vendor_radio_prop)
 
-allow rild vendor_shell_exec:file { execute_no_trans };
-allow rild vendor_toolbox_exec:file { execute_no_trans };
+allow rild vendor_shell_exec:file execute_no_trans;
+allow rild vendor_toolbox_exec:file execute_no_trans;

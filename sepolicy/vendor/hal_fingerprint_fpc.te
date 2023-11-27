@@ -33,8 +33,8 @@ allow hal_fingerprint_fpc sysfs_battery_supply:file r_file_perms;
 r_dir_file(hal_fingerprint_fpc, firmware_file)
 
 # /data/vendor/fpc
-allow hal_fingerprint_fpc fpc_vendor_data_file:dir { rw_dir_perms };
-allow hal_fingerprint_fpc fpc_vendor_data_file:file { create_file_perms };
+allow hal_fingerprint_fpc fpc_vendor_data_file:dir rw_dir_perms;
+allow hal_fingerprint_fpc fpc_vendor_data_file:file create_file_perms;
 
 # /data/system/users/[0-9]+/fpdata(/.*)?
 allow hal_fingerprint_fpc fingerprintd_data_file:dir rw_dir_perms;
