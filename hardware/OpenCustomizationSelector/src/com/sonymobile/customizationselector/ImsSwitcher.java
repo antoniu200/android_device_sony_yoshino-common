@@ -22,8 +22,9 @@ public class ImsSwitcher {
     public void switchOnIMS(int subID) {
         CSLog.d(TAG, "switching IMS ON");
         // Need to reset configuration preference in order to allow reboot dialog to appear.
-        context.createDeviceProtectedStorageContext().getSharedPreferences(Configurator.PREF_PKG, Context.MODE_PRIVATE)
-                .edit().putString(Configurator.OLD_CONFIG_KEY, "null").apply();
+	if (!context.getSharedPreferences(Configurator.PREF_PKG, Context.MODE_PRIVATE).edit().putString(Configurator.OLD_CONFIG_KEY, "").commit()) {
+            CSLog.w(TAG, "Failed to reset configuration key, modem will not be changed.");
+}
 
         if (CommonUtil.isDefaultDataSlot(context, subID)) {
             CSLog.d(TAG, "Default data SIM loaded");
@@ -38,7 +39,7 @@ public class ImsSwitcher {
         try {
             String currentModem = ModemSwitcher.getCurrentModemConfig().replace(ModemSwitcher.MODEM_FS_PATH, "");
             if (CommonUtil.isModemDefault(currentModem)) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.AppDialog);
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
                 builder.setMessage("Your modem is already default, no reboot required");
                 builder.setPositiveButton("OK", (dialogInterface, i) -> dialogInterface.dismiss());
                 AlertDialog dialog = builder.create();
@@ -80,7 +81,7 @@ public class ImsSwitcher {
         CSLog.d(TAG, "Turning to default to: " + modem);
 
         if (new ModemSwitcher().setModemConfiguration(ModemSwitcher.MODEM_FS_PATH + modem)) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.AppDialog);
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
             builder.setCancelable(false);
             builder.setMessage("Your device has now switched to default modem " + modem + "\nReboot required.");
             builder.setPositiveButton("Reboot", (dialogInterface, i) -> {
@@ -95,3 +96,4 @@ public class ImsSwitcher {
         }
     }
 }
+
