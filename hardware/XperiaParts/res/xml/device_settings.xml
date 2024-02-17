@@ -51,14 +51,14 @@
             android:title="@string/ims_title" />
 
         <SwitchPreference
-            android:defaultValue="false"
+            android:defaultValue="true"
             android:icon="@drawable/ic_outline_phonelink_setup_24"
             android:key="cs_re_apply_modem"
             android:summary="@string/modem_summary"
             android:title="@string/modem_title" />
 
         <SwitchPreference
-            android:defaultValue="true"
+            android:defaultValue="false"
             android:icon="@drawable/ic_outline_notifications_active_24"
             android:key="cs_notification"
             android:summary="@string/sony_modem_notification_summary"
