@@ -22,8 +22,9 @@ public class ImsSwitcher {
     public void switchOnIMS(int subID) {
         CSLog.d(TAG, "switching IMS ON");
         // Need to reset configuration preference in order to allow reboot dialog to appear.
-        context.createDeviceProtectedStorageContext().getSharedPreferences(Configurator.PREF_PKG, Context.MODE_PRIVATE)
-                .edit().putString(Configurator.OLD_CONFIG_KEY, "null").apply();
+        if (!context.getSharedPreferences(Configurator.PREF_PKG, Context.MODE_PRIVATE).edit().putString(Configurator.OLD_CONFIG_KEY, "").commit()) {
+            CSLog.w(TAG, "switchOnIMS: Failed to reset configuration key, modem will not be changed.");
+}
 
         if (CommonUtil.isDefaultDataSlot(context, subID)) {
             CSLog.d(TAG, "Default data SIM loaded");
