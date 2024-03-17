@@ -1,0 +1,2 @@
+# TimeService app
+user=system seinfo=platform name=com.qualcomm.timeservice domain=qtimeservice type=system_app_data_file
