@@ -7,9 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.storage.StorageManager;
 import android.provider.Settings;
-import android.telephony.CellSignalStrength;
 import android.telephony.RadioAccessFamily;
 import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
@@ -36,33 +34,39 @@ public class NetworkSwitcher extends Service {
     private static final String NS_LOWER_NETWORK = "ns_lowNet";
     private static final String NS_PREFERRED = "ns_preferred";
 
-    private AirplaneModeObserver airplaneModeObserver;
-    private SimServiceObserver simServiceObserver;
+    private AirplaneModeObserver mAirplaneModeObserver;
+    private SimServiceObserver mSimServiceObserver;
     // Set until the phone is unlocked
-    private BroadcastReceiver unlockObserver;
+    private BroadcastReceiver mUnlockObserver;
 
     @Override
     public void onCreate() {
         d("onCreate");
-        airplaneModeObserver = new AirplaneModeObserver(getApplicationContext(), new Handler(getMainLooper()));
-        simServiceObserver = new SimServiceObserver(getApplicationContext());
-        unlockObserver = new BroadcastReceiver() {
+        final Context appContext = getApplicationContext();
+
+        mAirplaneModeObserver = new AirplaneModeObserver(appContext, new Handler(getMainLooper()));
+        mSimServiceObserver = new SimServiceObserver(appContext);
+        mUnlockObserver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                unregisterReceiver(unlockObserver);
-                unlockObserver = null;
+                unregisterReceiver(mUnlockObserver);
+                mUnlockObserver = null;
             }
         };
-        registerReceiver(unlockObserver, new IntentFilter(Intent.ACTION_USER_UNLOCKED));
+        registerReceiver(mUnlockObserver, new IntentFilter(Intent.ACTION_USER_UNLOCKED));
 
         // Start process
         try {
-            int subID = getSubID();
-            if (subID == SubscriptionManager.INVALID_SUBSCRIPTION_ID) {
-                new SubIdObserver(getApplicationContext()).register(this::initProcess);
-            } else {
+            if (CommonUtil.isDualSim(appContext))
+                d("device is dual sim");
+            else
+                d("single sim device");
+
+            int subID = CommonUtil.getSubID(appContext);
+            if (subID == SubscriptionManager.INVALID_SUBSCRIPTION_ID)
+                new SubIdObserver(appContext).register(this::initProcess);
+            else
                 initProcess(subID);
-            }
         } catch (Exception e) {
             CSLog.e(TAG, "Error: ", e);
         }
@@ -71,29 +75,14 @@ public class NetworkSwitcher extends Service {
     }
 
     @Override
-    public int onStartCommand(Intent intent, int i, int i1) {
+    public int onStartCommand(Intent intent, int flags, int startId) {
         return START_STICKY;
     }
 
-    /**
-     * Get the subscription IDs based on phone count and sim status.
-     */
-    private int getSubID() {
-        int[] subs = null;
-        if (CommonUtil.isDualSim(getApplicationContext())) {
-            d("initSubID: device is dual sim");
-            subs = SubscriptionManager.getSubId(Settings.System.getInt(getApplicationContext().getContentResolver(), "ns_slot", 0));
-        } else {
-            d("initSubID: single sim device");
-            subs = SubscriptionManager.getSubId(0);
-        }
-        return subs == null ? SubscriptionManager.INVALID_SUBSCRIPTION_ID : subs[0];
-    }
-
     private void initProcess(int subID) {
-        if (CommonUtil.isSIMLoaded(getApplicationContext(), subID)) {
+        if (CommonUtil.isSIMLoaded(getApplicationContext(), subID))
             new Handler(getMainLooper()).postDelayed(() -> switchDown(subID), 1400);
-        } else {
+        else {
             new SlotObserver(getApplicationContext()).register(subID,
                     () -> new Handler(getMainLooper()).postDelayed(() -> switchDown(subID), 1400));
         }
@@ -106,18 +95,18 @@ public class NetworkSwitcher extends Service {
             return;
         }
 
-        TelephonyManager tm = getSystemService(TelephonyManager.class).createForSubscriptionId(subID);
-
         int currentNetwork = getPreferredNetwork(subID);
         if (isLTE(currentNetwork)) {
+            TelephonyManager tm = getSystemService(TelephonyManager.class).createForSubscriptionId(subID);
+
             setOriginalNetwork(subID, currentNetwork);
             changeNetwork(tm, subID, getLowerNetwork());
 
-            if (StorageManager.isFileEncryptedNativeOrEmulated() && unlockObserver != null) {
+            if (CommonUtil.isDirectBootEnabled() && mUnlockObserver != null) {
                 // Delay resetting the network until phone is unlocked.
                 // The current unlock observer is no longer required
-                unregisterReceiver(unlockObserver);
-                unlockObserver = null;
+                unregisterReceiver(mUnlockObserver);
+                mUnlockObserver = null;
                 registerReceiver(new BroadcastReceiver() {
                     @Override
                     public void onReceive(Context context, Intent intent) {
@@ -125,9 +114,8 @@ public class NetworkSwitcher extends Service {
                         handleConnection(tm, subID);
                     }
                 }, new IntentFilter(Intent.ACTION_USER_UNLOCKED));
-            } else {
+            } else
                 handleConnection(tm, subID);
-            }
         } else {
             d("Network is not LTE, no work.");
             stopSelf();
@@ -136,25 +124,23 @@ public class NetworkSwitcher extends Service {
 
     private void handleConnection(TelephonyManager tm, int subID) {
         if (isAirplaneModeOn()) {
-            airplaneModeObserver.register(uri -> {
-                if (uri != null && uri == Settings.System.getUriFor(Settings.Global.AIRPLANE_MODE_ON)) {
-                    if (isAirplaneModeOn()) {
-                        simServiceObserver.unregister();
-                    } else {
-                        simServiceObserver.register(subID, () -> {
-                            airplaneModeObserver.unregister();
-                            changeNetwork(tm, subID, getOriginalNetwork(subID));
-                            stopSelf();
-                        });
-                    }
+            mAirplaneModeObserver.register(() -> {
+                if (isAirplaneModeOn())
+                    mSimServiceObserver.unregister();
+                else {
+                    mSimServiceObserver.register(subID, () -> {
+                        mAirplaneModeObserver.unregister();
+                        changeNetwork(tm, subID, getOriginalNetwork(subID));
+                        stopSelf();
+                    });
                 }
             });
         } else {
-            if (tm.getSignalStrength() != null && tm.getSignalStrength().getLevel() != CellSignalStrength.SIGNAL_STRENGTH_NONE_OR_UNKNOWN) {
+            if (CommonUtil.hasSignal(tm)) {
                 changeNetwork(tm, subID, getOriginalNetwork(subID));
                 stopSelf();
             } else {
-                new SimServiceObserver(getApplicationContext()).register(subID, () -> {
+                mSimServiceObserver.register(subID, () -> {
                     changeNetwork(tm, subID, getOriginalNetwork(subID));
                     stopSelf();
                 });

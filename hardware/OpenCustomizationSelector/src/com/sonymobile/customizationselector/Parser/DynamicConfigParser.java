@@ -15,7 +15,7 @@ import static com.sonymobile.customizationselector.Parser.XmlConstants.*;
 
 public class DynamicConfigParser {
 
-    private static final String TAG = DynamicConfigParser.class.getSimpleName();
+    private static final String TAG = "DynamicConfigParser";
 
     private static final int RESOURCE_XML = R.xml.configuration_selectors;
 
@@ -40,18 +40,15 @@ public class DynamicConfigParser {
                         while (xml.next() != 1) {
                             if (xml.getEventType() == 2) {
                                 tag = xml.getName();
-                                if (CONFIGURATION.equals(tag)) {
+                                if (CONFIGURATION.equals(tag))
                                     configID = fix(xml.getAttributeValue(null, CONFIG_ID));
-                                }
                                 if (SIM_CONFIG_ID.equalsIgnoreCase(tag)) {
                                     String value = fix(xml.nextText());
-                                    if (!TextUtils.isEmpty(configID)) {
+                                    if (!TextUtils.isEmpty(configID))
                                         hashMap.put(value, configID);
-                                    }
                                 }
-                                if (ANY_SIM.equalsIgnoreCase(tag) && !TextUtils.isEmpty(configID)) {
+                                if (ANY_SIM.equalsIgnoreCase(tag) && !TextUtils.isEmpty(configID))
                                     hashMap.put(ANY_SIM, configID);
-                                }
                             }
                         }
                     } catch (IOException | XmlPullParserException e2) {
@@ -64,10 +61,9 @@ public class DynamicConfigParser {
         return hashMap;
     }
 
-    private static String fix(String str) {
-        if (str == null) {
-            str = "";
-        }
-        return str.replace("\n", "").replace("\t", "").trim();
+    private static String fix(String s) {
+        if (TextUtils.isEmpty(s))
+            return "";
+        return s.replace("\n", "").replace("\t", "").trim();
     }
 }

@@ -18,8 +18,8 @@ public class StatusActivity extends Activity {
         TextView reportText = findViewById(R.id.m_report_text);
         TextView statusText = findViewById(R.id.m_status_text);
 
-        File reportFile = new File("/cache/modem/modem_switcher_report");
-        File statusFile = new File("/cache/modem/modem_switcher_status");
+        File reportFile = new File(ModemSwitcher.MODEM_REPORT_FILE);
+        File statusFile = new File(ModemSwitcher.MODEM_STATUS_FILE);
 
         reportText.setText(reportFile.exists() ? readFile(reportFile) : getString(R.string.file_not_found));
         statusText.setText(statusFile.exists() ? readFile(statusFile) : getString(R.string.file_not_found));
@@ -27,25 +27,17 @@ public class StatusActivity extends Activity {
 
     private String readFile(File file) {
         StringBuilder data = new StringBuilder();
-
-        BufferedReader br = null;
         try {
-            br = new BufferedReader(new FileReader(file));
-            String line;
-
-            while ((line = br.readLine()) != null) {
-                data.append(line).append("\n");
+            BufferedReader reader = new BufferedReader(new FileReader(file));
+            try {
+                String line;
+                while ((line = reader.readLine()) != null)
+                    data.append(line).append("\n");
+            } finally {
+                reader.close();
             }
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            try {
-                if (br != null) {
-                    br.close();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         }
         return data.toString();
     }

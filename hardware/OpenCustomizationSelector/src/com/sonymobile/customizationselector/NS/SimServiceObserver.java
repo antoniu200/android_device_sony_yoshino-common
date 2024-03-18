@@ -2,10 +2,10 @@ package com.sonymobile.customizationselector.NS;
 
 import android.content.Context;
 import android.os.Handler;
-import android.telephony.CellSignalStrength;
 import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 import com.sonymobile.customizationselector.CSLog;
+import com.sonymobile.customizationselector.CommonUtil;
 
 public class SimServiceObserver {
 
@@ -16,61 +16,53 @@ public class SimServiceObserver {
     }
 
     private final Context mContext;
+    private int mSubID = SubscriptionManager.INVALID_SUBSCRIPTION_ID;
+    private Handler mHandler;
+    private Listener mListener;
 
-    private boolean registered = false;
-    private int subID = SubscriptionManager.INVALID_SUBSCRIPTION_ID;
-
-    private Handler handler;
     private final Runnable runnable = new Runnable() {
         @Override
-        public void run() {
+        public synchronized void run() {
             try {
-                synchronized (new Object()) {
-                    if (subID != SubscriptionManager.INVALID_SUBSCRIPTION_ID) {
-                        TelephonyManager tm = mContext.getSystemService(TelephonyManager.class).createForSubscriptionId(subID);
-                        if (tm.getSignalStrength() != null && tm.getSignalStrength().getLevel() != CellSignalStrength.SIGNAL_STRENGTH_NONE_OR_UNKNOWN) {
-                            listener.onConnected();
-                            unregister();
-                        }
-                    } else {
+                if (mSubID == SubscriptionManager.INVALID_SUBSCRIPTION_ID)
+                    unregister();
+                else {
+                    TelephonyManager tm = mContext.getSystemService(TelephonyManager.class).createForSubscriptionId(mSubID);
+                    if (CommonUtil.hasSignal(tm)) {
+                        mListener.onConnected();
                         unregister();
                     }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
-                handler.postDelayed(this, 2000);
+                if(mListener != null)
+                    mHandler.postDelayed(this, 2000);
             }
         }
     };
 
-    private Listener listener;
-
     public SimServiceObserver(Context context) {
-        this.mContext = context;
+        mContext = context;
     }
 
     public void register(int subID, Listener listener) {
-        if (!registered) {
-            this.subID = subID;
-            this.listener = listener;
-            handler = new Handler(mContext.getMainLooper());
-
-            handler.post(runnable);
-            registered = true;
-            CSLog.d(TAG, "Registered");
-        }
+        if (mListener != null)
+            return;
+        mSubID = subID;
+        mListener = listener;
+        if(mHandler == null)
+            mHandler = new Handler(mContext.getMainLooper());
+        mHandler.post(runnable);
+        CSLog.d(TAG, "Registered");
     }
 
     public void unregister() {
-        if (registered) {
-            listener = null;
-            subID = SubscriptionManager.INVALID_SUBSCRIPTION_ID;
-
-            handler.removeCallbacks(runnable);
-
-            registered = false;
-            CSLog.d(TAG, "Unregistered");
-        }
+        if (mListener == null)
+            return;
+        mHandler.removeCallbacks(runnable);
+        mSubID = SubscriptionManager.INVALID_SUBSCRIPTION_ID;
+        mListener = null;
+        CSLog.d(TAG, "Unregistered");
     }
 }

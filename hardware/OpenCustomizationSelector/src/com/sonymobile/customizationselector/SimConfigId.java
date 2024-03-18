@@ -14,34 +14,31 @@ import static com.sonymobile.customizationselector.Parser.XmlConstants.*;
 
 public class SimConfigId {
 
-    private static final String TAG = SimConfigId.class.getSimpleName();
+    private static final String TAG = "SimConfigId";
 
     private static final int MCC_LENGTH = 3;
-    private static final String SUBSCRIPTION = "subscription";
 
     private final Context mContext;
 
     public SimConfigId(Context context) {
-        this.mContext = context;
+        mContext = context;
     }
 
-    public static HashMap<String, String> extractSimInfo(TelephonyManager telephonyManager, int subID) {
+    public static HashMap<String, String> extractSimInfo(TelephonyManager tm, int subID) {
         HashMap<String, String> hashMap = new HashMap<>();
 
-        String simOperator = telephonyManager.getSimOperator(subID);
-        String simOperatorName = telephonyManager.getSimOperatorName(subID);
-        String subscriberId = telephonyManager.getSubscriberId(subID);
-        String groupIdLevel1 = telephonyManager.getGroupIdLevel1(subID);
-        String simSerialNumber = telephonyManager.getSimSerialNumber(subID);
+        String simOperator = tm.getSimOperator(subID);
+        String simOperatorName = tm.getSimOperatorName(subID);
+        String subscriberId = tm.getSubscriberId(subID);
+        String groupIdLevel1 = tm.getGroupIdLevel1(subID);
+        String simSerialNumber = tm.getSimSerialNumber(subID);
 
         if (!TextUtils.isEmpty(simOperator) && !TextUtils.isEmpty(subscriberId)) {
             simOperatorName = simOperatorName != null ? simOperatorName.replaceAll("[\n\r]", "") : "";
-            if (groupIdLevel1 == null) {
+            if (groupIdLevel1 == null)
                 groupIdLevel1 = "";
-            }
-            if (simSerialNumber == null) {
+            if (simSerialNumber == null)
                 simSerialNumber = "";
-            }
             hashMap.put(MCC, simOperator.substring(0, MCC_LENGTH));
             hashMap.put(MNC, simOperator.substring(MCC_LENGTH));
             hashMap.put(SP, simOperatorName.trim());
@@ -109,23 +106,24 @@ public class SimConfigId {
         return simConfigId;
     }
 
-    private boolean matchOnImsi(String str, String str2) {
-        return str2 != null && Pattern.compile(str).matcher(str2).matches();
+    private boolean matchOnImsi(String pattern, String s) {
+        return s != null && Pattern.compile(pattern).matcher(s).matches();
     }
 
-    private boolean matchOnSP(String str, String str2) {
-        return NULL_VALUE.equalsIgnoreCase(str) ?
-                TextUtils.isEmpty(str2) || NULL_VALUE.equalsIgnoreCase(str2) :
-                str2 != null && Pattern.compile(str).matcher(str2).matches();
+    private boolean matchOnSP(String pattern, String s) {
+        if (NULL_VALUE.equalsIgnoreCase(pattern))
+            return TextUtils.isEmpty(s) || NULL_VALUE.equalsIgnoreCase(s);
+        else
+            return s != null && Pattern.compile(pattern).matcher(s).matches();
     }
 
     public String getId() {
         String id = "";
-        TelephonyManager telephonyManager = mContext.getSystemService(TelephonyManager.class);
+        TelephonyManager tm = mContext.getSystemService(TelephonyManager.class);
         int subId = CommonUtil.getDefaultSubId(mContext);
 
-        if (telephonyManager != null && subId != SubscriptionManager.INVALID_SUBSCRIPTION_ID) {
-            HashMap<String, String> simInfo = extractSimInfo(telephonyManager, subId);
+        if (tm != null && subId != SubscriptionManager.INVALID_SUBSCRIPTION_ID) {
+            HashMap<String, String> simInfo = extractSimInfo(tm, subId);
             CSLog.d(TAG, "***********************************");
             CSLog.d(TAG, "extractSimInfo: " + simInfo.toString());
             CSLog.d(TAG, "***********************************");
@@ -135,11 +133,10 @@ public class SimConfigId {
         CSLog.d(TAG, "***********************************");
         StringBuilder sb = new StringBuilder();
         sb.append("Best SIM configuration id= ");
-        if (TextUtils.isEmpty(id)) {
+        if (TextUtils.isEmpty(id))
             sb.append("NOT FOUND - RETURNING \"\"");
-        } else {
+        else
             sb.append(id);
-        }
         CSLog.d(TAG, sb.toString());
         CSLog.d(TAG, "***********************************");
         return id;

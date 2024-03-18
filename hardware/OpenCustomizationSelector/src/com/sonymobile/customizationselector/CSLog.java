@@ -17,6 +17,7 @@ import java.util.Locale;
 public class CSLog {
 
     private static final String PREFIX = "CS-";
+    private static final String LOG_FILE = "/data/user_de/0/com.sonymobile.customizationselector/files/cs.log";
 
     public static void d(String tag, String msg) {
         Log.d(PREFIX + tag, msg);
@@ -47,15 +48,14 @@ public class CSLog {
         String subscriberID = "", simOP = "", simOpName = "";
 
         int defaultSubscriptionId = SubscriptionManager.getDefaultSubscriptionId();
-        TelephonyManager telephonyManager = context.getSystemService(TelephonyManager.class);
+        TelephonyManager tm = context.getSystemService(TelephonyManager.class);
 
         if (defaultSubscriptionId != SubscriptionManager.INVALID_SUBSCRIPTION_ID) {
-            simOP = telephonyManager.getSimOperator(defaultSubscriptionId);
-            if (simOP == null) {
+            simOP = tm.getSimOperator(defaultSubscriptionId);
+            if (simOP == null)
                 simOP = "";
-            }
-            subscriberID = telephonyManager.getSubscriberId(defaultSubscriptionId);
-            String simOperatorName = telephonyManager.getSimOperatorName(defaultSubscriptionId);
+            subscriberID = tm.getSubscriberId(defaultSubscriptionId);
+            String simOperatorName = tm.getSimOperatorName(defaultSubscriptionId);
             simOpName = simOperatorName != null ? simOperatorName.replaceAll("[\n\r]", "").trim() : "";
         }
         d(tag, "SimValues: MCC-MNC=" + simOP + ", SP-name=" + simOpName + ", IMSI=" + subscriberID);
@@ -72,28 +72,23 @@ public class CSLog {
                 return;
             }
         }
-        if (packageInfo != null) {
+        if (packageInfo != null)
             d(tag, "Version: " + packageInfo.versionName);
-        }
     }
 
     private static boolean sizeCheckDone = false;
 
     private static void writeLog(String tag, String msg, String type) {
-        File logDir = new File("/data/user_de/0/com.sonymobile.customizationselector/files");
-        File logFile = new File("/data/user_de/0/com.sonymobile.customizationselector/files/cs.log");
+        File logFile = new File(LOG_FILE);
+        File logDir = logFile.getParentFile();
         BufferedWriter brw = null;
         try {
-            if (!logDir.exists()) {
-                if (!logDir.mkdirs()) {
-                    return;
-                }
-            }
+            if (!logDir.exists() && !logDir.mkdirs())
+                return;
             if (!logFile.exists()) {
-                if (!logFile.createNewFile()) {
+                if (!logFile.createNewFile())
                     return;
-                }
-            }else if(!sizeCheckDone) {
+            } else if(!sizeCheckDone) {
                 // Delete file if it grows larger than 1 MB
                 if(logFile.length() > 1024 * 1024)
                     logFile.delete();
@@ -101,18 +96,15 @@ public class CSLog {
             }
             brw = new BufferedWriter(new FileWriter(logFile, logFile.exists()));
 
-            String line = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS", Locale.getDefault())
-                    .format(System.currentTimeMillis()) + " " + type + " " + tag + ": " + msg;
-
-            brw.append(line);
+            String timeStamp = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS").format(System.currentTimeMillis());
+            brw.append(timeStamp + " " + type + " " + tag + ": " + msg);
             brw.newLine();
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             try {
-                if (brw != null) {
+                if (brw != null)
                     brw.close();
-                }
             } catch (Exception e) {
                 e.printStackTrace();
             }

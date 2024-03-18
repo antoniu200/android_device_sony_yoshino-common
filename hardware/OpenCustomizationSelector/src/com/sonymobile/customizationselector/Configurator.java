@@ -5,19 +5,18 @@ import android.content.SharedPreferences;
 import android.os.PersistableBundle;
 import android.os.SystemProperties;
 import android.provider.Settings;
+import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
-import com.sonymobile.miscta.MiscTA;
 import com.sonymobile.miscta.MiscTaException;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 
 public class Configurator {
 
-    private static final String TAG = Configurator.class.getSimpleName();
-    public static final String PREF_PKG = "CS";
+    private static final String TAG = "Configurator";
+    private static final String PREF_PKG = "CS";
 
     public static final String KEY_CONFIG_ID = "config_id";
     public static final String KEY_MODEM = "modem";
@@ -36,48 +35,57 @@ public class Configurator {
 
     private final PersistableBundle mBundle;
     private final Context mContext;
-    private String mConfigId = "", mModem = "";
+    private String mConfigId = null, mModem = "";
 
-    public Configurator(Context context, PersistableBundle persistableBundle) {
-        this.mContext = context;
-        this.mBundle = persistableBundle;
+    public Configurator(Context context, PersistableBundle bundle) {
+        mContext = context;
+        mBundle = bundle;
     }
 
     public static void clearMiscTaConfigId() {
         CSLog.d(TAG, "Clear MiscTa value for Config Id");
-        MiscTA.write(TA_AC_VERSION, "".getBytes(StandardCharsets.UTF_8));
+        MiscTA.write(TA_AC_VERSION, "");
     }
 
     private boolean anythingChangedSinceLastEvaluation() {
-        String configKey = getPreferences().getString(OLD_CONFIG_KEY, "");
-        CSLog.d(TAG, "OldConfigKey: " + configKey);
-        return !configKey.equals(createCurrentConfigurationKey());
+        String oldKey = getPreferences().getString(OLD_CONFIG_KEY, "");
+        String key = createCurrentConfigurationKey();
+        if (key.equals(oldKey)) {
+            CSLog.d(TAG, "Unchanged key=" + key);
+            return false;
+        } else {
+            CSLog.d(TAG, "Key changed: " + key + "!=" + oldKey);
+            return true;
+        }
+    }
+
+    public void saveConfigurationKey(String configKey) {
+        getPreferences().edit().putString(OLD_CONFIG_KEY, configKey).apply();
     }
 
     public void saveConfigurationKey() {
-        String createCurrentConfigurationKey = createCurrentConfigurationKey();
-        getPreferences().edit()
-                .putString(OLD_CONFIG_KEY, createCurrentConfigurationKey)
-                .apply();
-
-        CSLog.d(TAG, "saveConfigKey - key saved: " + createCurrentConfigurationKey);
+        String newKey = createCurrentConfigurationKey();
+        saveConfigurationKey(newKey);
+        CSLog.d(TAG, "saveConfigKey - key saved: " + newKey);
     }
 
     public void clearConfigurationKey() {
-        getPreferences().edit().putString(OLD_CONFIG_KEY, "null").apply();
+        saveConfigurationKey("null");
     }
 
     private String createCurrentConfigurationKey() {
         String status = SystemProperties.get(PROP_CUST, "") + SystemProperties.get(PROP_CUST_REV, "") +
                 SystemProperties.get(PROP_SW, "") + SystemProperties.get(PROP_SW_REV, "") +
                 SystemProperties.get(PROP_CS_VERSION, "") + getIccid();
-        CSLog.d(TAG, "CurrentConfKey: " + status);
         return status;
     }
 
     private String evaluateCarrierConfigId(String ID) {
-        CSLog.d(TAG, "config_id = " + ID);
-        return (ID == null || ID.equals(SystemProperties.get(PROP_TA_AC_VERSION, null))) ? null : ID;
+        String taProp = SystemProperties.get(PROP_TA_AC_VERSION, null);
+        String taValue = MiscTA.readString(TA_AC_VERSION);
+        CSLog.d(TAG, "evaluateCarrierConfigId: config_id=" + ID + " property=" + taProp + " TA-value=" + taValue);
+
+        return (ID == null || ID.equals(taProp)) ? null : ID;
     }
 
     private String evaluateModem(String modem) {
@@ -86,24 +94,28 @@ public class Configurator {
     }
 
     private String getIccid() {
-        TelephonyManager telephonyManager = mContext.getSystemService(TelephonyManager.class);
+        TelephonyManager tm = mContext.getSystemService(TelephonyManager.class);
         int defaultSubId = CommonUtil.getDefaultSubId(mContext);
-        String simSerialNumber = (telephonyManager == null || defaultSubId == -1) ? "" : telephonyManager.getSimSerialNumber(defaultSubId);
+        String simSerialNumber = (tm == null || defaultSubId == SubscriptionManager.INVALID_SUBSCRIPTION_ID) ? "" : tm.getSimSerialNumber(defaultSubId);
         CSLog.d(TAG, "getIccid: " + simSerialNumber);
         return simSerialNumber != null ? simSerialNumber : "";
     }
 
-    public Context getTargetContext() {
+    private static Context getTargetContext(Context context) {
         if (CommonUtil.isDirectBootEnabled()) {
             CSLog.d(TAG, "Direct Boot is enabled. Use device encrypted storage.");
-            return mContext.createDeviceProtectedStorageContext();
+            return context.createDeviceProtectedStorageContext();
         }
         CSLog.d(TAG, "Direct Boot is disabled. Use credential encrypted storage.");
-        return mContext;
+        return context;
+    }
+
+    public static SharedPreferences getPreferences(Context context) {
+        return getTargetContext(context).getSharedPreferences(PREF_PKG, Context.MODE_PRIVATE);
     }
 
     public SharedPreferences getPreferences() {
-        return getTargetContext().getSharedPreferences(PREF_PKG, Context.MODE_PRIVATE);
+        return getPreferences(mContext);
     }
 
     public boolean isNewConfigurationNeeded() {
@@ -119,7 +131,6 @@ public class Configurator {
                 CSLog.d(TAG, "isNewConfigurationNeeded - Modem: " + mModem);
                 CSLog.d(TAG, "isNewConfigurationNeeded - Carrier Config Id: " + mConfigId);
             }
-            // Actual: (this.mConfigId == null && TextUtils.isEmpty(this.mModem)) ? false : true
             return mConfigId != null || !TextUtils.isEmpty(mModem);
         } else {
             CSLog.d(TAG, "isNewConfigurationNeeded - ConfigKey not updated, no need to evaluate");
@@ -131,12 +142,10 @@ public class Configurator {
         CSLog.d(TAG, String.format("Set() - modem = '%s' - carrier config id = '%s'", mModem, mConfigId));
         if (anythingChangedSinceLastEvaluation()) {
             saveConfigurationKey();
-            if (mConfigId != null) {
-                MiscTA.write(TA_AC_VERSION, mConfigId.getBytes(StandardCharsets.UTF_8));
-            }
-            if (!TextUtils.isEmpty(mModem)) {
+            if (mConfigId != null)
+                MiscTA.write(TA_AC_VERSION, mConfigId);
+            if (!TextUtils.isEmpty(mModem))
                 new ModemConfiguration(getPreferences()).setConfiguration(mModem);
-            }
         }
     }
 }

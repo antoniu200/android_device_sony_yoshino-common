@@ -15,58 +15,48 @@ public class SlotObserver {
     }
 
     private final Context mContext;
+    private Handler mHandler;
+    private Listener mListener;
+    private int mSubID = SubscriptionManager.INVALID_SUBSCRIPTION_ID;
 
-    private boolean registered = false;
-    private int subID = SubscriptionManager.INVALID_SUBSCRIPTION_ID;
-
-    private Handler handler;
     private final Runnable runnable = new Runnable() {
         @Override
-        public void run() {
+        public synchronized void run() {
             try {
-                synchronized (new Object()) {
-                    if (subID != SubscriptionManager.INVALID_SUBSCRIPTION_ID) {
-                        if (CommonUtil.isSIMLoaded(mContext, subID)) {
-                            listener.onConnected();
-                            unregister();
-                        }
-                    } else {
-                        unregister();
-                    }
+                if (mSubID == SubscriptionManager.INVALID_SUBSCRIPTION_ID)
+                    unregister();
+                else if (CommonUtil.isSIMLoaded(mContext, mSubID)) {
+                    mListener.onConnected();
+                    unregister();
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
-                handler.postDelayed(this, 2000);
+                if(mListener != null)
+                    mHandler.postDelayed(this, 2000);
             }
         }
     };
 
-    private Listener listener;
-
     public void register(int subID, Listener listener) {
-        if (!registered) {
-            this.subID = subID;
-            this.listener = listener;
-            handler = new Handler(mContext.getMainLooper());
+        if (mListener != null)
+            return;
+        mSubID = subID;
+        mListener = listener;
 
-            handler.post(runnable);
-            registered = true;
-
-            CSLog.d(TAG, "Registered");
-        }
+        if(mHandler == null)
+            mHandler = new Handler(mContext.getMainLooper());
+        mHandler.post(runnable);
+        CSLog.d(TAG, "Registered");
     }
 
     public void unregister() {
-        if (registered) {
-            listener = null;
-            subID = SubscriptionManager.INVALID_SUBSCRIPTION_ID;
-
-            handler.removeCallbacks(runnable);
-
-            registered = false;
-            CSLog.d(TAG, "Unregistered");
-        }
+        if (mListener == null)
+            return;
+        mHandler.removeCallbacks(runnable);
+        mSubID = SubscriptionManager.INVALID_SUBSCRIPTION_ID;
+        mListener = null;
+        CSLog.d(TAG, "Unregistered");
     }
 
     public SlotObserver(Context context) {

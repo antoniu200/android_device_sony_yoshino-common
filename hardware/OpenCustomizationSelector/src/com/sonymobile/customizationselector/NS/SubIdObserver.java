@@ -8,7 +8,6 @@ import com.sonymobile.customizationselector.CSLog;
 import com.sonymobile.customizationselector.CommonUtil;
 
 public class SubIdObserver {
-
     private static final String TAG = "SubIdObserver";
 
     interface Listener {
@@ -16,65 +15,49 @@ public class SubIdObserver {
     }
 
     private final Context mContext;
+    private Handler mHandler;
+    private Listener mListener;
 
-    private boolean registered = false;
-
-    private Handler handler;
     private final Runnable runnable = new Runnable() {
         @Override
-        public void run() {
+        public synchronized void run() {
+            if(mListener == null)
+                return;
             try {
-                synchronized (new Object()) {
-                    int sub = getSubID();
-                    if (sub != SubscriptionManager.INVALID_SUBSCRIPTION_ID) {
-                        listener.onConnected(sub);
-                        unregister();
-                    }
+                int subId = CommonUtil.getSubID(mContext);
+                if (subId != SubscriptionManager.INVALID_SUBSCRIPTION_ID) {
+                    mListener.onConnected(subId);
+                    unregister();
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
-                if (handler != null) {
-                    handler.postDelayed(this, 2000);
-                }
+                if (mListener != null)
+                    mHandler.postDelayed(this, 2000);
             }
         }
     };
 
-    private Listener listener;
-
     public void register(Listener listener) {
-        if (!registered) {
-            this.listener = listener;
-            handler = new Handler(mContext.getMainLooper());
+        if (mListener != null)
+            return;
+        mListener = listener;
+        if(mHandler == null)
+            mHandler = new Handler(mContext.getMainLooper());
+        mHandler.post(runnable);
 
-            handler.post(runnable);
-            registered = true;
-
-            CSLog.d(TAG, "Registered");
-        }
-    }
-
-    private int getSubID() {
-        int[] subs = null;
-        if (CommonUtil.isDualSim(mContext)) {
-            subs = SubscriptionManager.getSubId(Settings.System.getInt(mContext.getContentResolver(), "ns_slot", 0));
-        } else {
-            subs = SubscriptionManager.getSubId(0);
-        }
-        return subs == null ? SubscriptionManager.INVALID_SUBSCRIPTION_ID : subs[0];
+        CSLog.d(TAG, "Registered");
     }
 
     private void unregister() {
-        listener = null;
-        handler.removeCallbacks(runnable);
-        handler = null;
-
-        registered = false;
+        if(mListener == null)
+            return;
+        mHandler.removeCallbacks(runnable);
+        mListener = null;
         CSLog.d(TAG, "Unregistered");
     }
 
     public SubIdObserver(Context context) {
-        this.mContext = context;
+        mContext = context;
     }
 }

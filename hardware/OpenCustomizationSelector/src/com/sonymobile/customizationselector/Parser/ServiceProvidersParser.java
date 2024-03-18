@@ -17,7 +17,7 @@ import static com.sonymobile.customizationselector.Parser.XmlConstants.*;
 
 public class ServiceProvidersParser {
 
-    private static final String TAG = ServiceProvidersParser.class.getSimpleName();
+    private static final String TAG = "ServiceProvidersParser";
     private static final int RESOURCE_XML = R.xml.service_providers;
 
     public static List<SimCombination> getServiceProviders(Context context) {
@@ -54,46 +54,36 @@ public class ServiceProvidersParser {
                                 if (simCombination != null) {
                                     if (MCC.equalsIgnoreCase(tag)) {
                                         tag = fix(xml.nextText());
-                                        if (!TextUtils.isEmpty(tag)) {
+                                        if (!TextUtils.isEmpty(tag))
                                             simCombination.setMCC(tag);
-                                        }
                                     } else if (MNC.equalsIgnoreCase(tag)) {
                                         tag = fix(xml.nextText());
-                                        if (!TextUtils.isEmpty(tag)) {
+                                        if (!TextUtils.isEmpty(tag))
                                             simCombination.setMNC(tag);
-                                        }
                                     } else if (SP.equalsIgnoreCase(tag)) {
                                         tag = fix(xml.nextText());
-                                        if (!TextUtils.isEmpty(tag)) {
+                                        if (!TextUtils.isEmpty(tag))
                                             simCombination.setServiceProvider(tag);
-                                        }
                                     } else if (IMSI.equalsIgnoreCase(tag)) {
                                         tag = fix(xml.nextText());
-                                        if (!TextUtils.isEmpty(tag)) {
+                                        if (!TextUtils.isEmpty(tag))
                                             simCombination.setIMSI(tag);
-                                        }
                                     } else if (GID1.equalsIgnoreCase(tag)) {
                                         tag = fix(xml.nextText());
-                                        if (!TextUtils.isEmpty(tag)) {
+                                        if (!TextUtils.isEmpty(tag))
                                             simCombination.setGid1(tag);
-                                        }
                                     } else if (GID2.equalsIgnoreCase(tag)) {
                                         tag = fix(xml.nextText());
-                                        if (!TextUtils.isEmpty(tag)) {
+                                        if (!TextUtils.isEmpty(tag))
                                             simCombination.setGid2(tag);
-                                        }
                                     }
                                 }
                             }
                         }
                     } catch (XmlPullParserException e) {
                         e.printStackTrace();
-                        CSLog.d(TAG, "Number of service providers found: " + arrayList.size());
-                        return arrayList;
                     } catch (IOException e) {
                         e.printStackTrace();
-                        CSLog.d(TAG, "Number of service providers found: " + arrayList.size());
-                        return arrayList;
                     }
                 }
                 CSLog.d(TAG, "Number of service providers found: " + arrayList.size());
@@ -102,10 +92,9 @@ public class ServiceProvidersParser {
         return arrayList;
     }
 
-    private static String fix(String str) {
-        if (str == null) {
-            str = "";
-        }
-        return str.replace("\n", "").replace("\t", "").trim();
+    private static String fix(String s) {
+        if (TextUtils.isEmpty(s))
+            return "";
+        return s.replace("\n", "").replace("\t", "").trim();
     }
 }

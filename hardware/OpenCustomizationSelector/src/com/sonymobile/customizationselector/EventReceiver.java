@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.SystemProperties;
 import android.provider.Settings;
+import android.telephony.CarrierConfigManager;
 import android.telephony.SubscriptionManager;
 import androidx.core.app.NotificationCompat;
 
@@ -17,30 +18,36 @@ import java.io.File;
 import java.io.FileReader;
 
 public class EventReceiver extends BroadcastReceiver {
+    private static final String TAG = "EventReceiver";
 
-    private static final String TAG = EventReceiver.class.getSimpleName();
+    public static final String CS_NOTIFICATION = "cs_notification";
+    public static final String SUBID_KEY = "event_subID";
+
     private static final String CHANNEL_ID = "Sony Modem";
+    private static final String SUBSCRIPTION_KEY = "subscription"; // PhoneConstants.SUBSCRIPTION_KEY (internal)
 
     private int getSubId(Context context, Intent intent) {
-        int intExtra = intent.getIntExtra("subscription", SubscriptionManager.INVALID_SUBSCRIPTION_ID);
-        CSLog.d(TAG, "Event received for subscription: " + intExtra);
-        return (intExtra == -1 || !CommonUtil.isMandatorySimParamsAvailable(context, intExtra)) ? -1 : intExtra;
+        int subId = intent.getIntExtra(SUBSCRIPTION_KEY, SubscriptionManager.INVALID_SUBSCRIPTION_ID);
+        CSLog.d(TAG, "Event received for subscription: " + subId);
+        if (subId != SubscriptionManager.INVALID_SUBSCRIPTION_ID && CommonUtil.isMandatorySimParamsAvailable(context, subId))
+            return subId;
+        else
+            return SubscriptionManager.INVALID_SUBSCRIPTION_ID;
     }
 
     public void onReceive(Context context, Intent intent) {
         if (context == null || intent == null) {
-            CSLog.d(TAG, "Context or Intent was null.");
+            CSLog.e(TAG, "Context or Intent is null");
             return;
         }
 
         int subID = getSubId(context, intent);
-        if (subID != -1) {
+        if (subID != SubscriptionManager.INVALID_SUBSCRIPTION_ID) {
             CSLog.d(TAG, "Saving sub ID for later");
-            context.createDeviceProtectedStorageContext().getSharedPreferences(Configurator.PREF_PKG, Context.MODE_PRIVATE)
-                    .edit().putInt("event_subID", getSubId(context, intent)).apply();
+            Configurator.getPreferences(context).edit().putInt(SUBID_KEY, subID).apply();
         }
 
-        if (Settings.System.getInt(context.getContentResolver(), "cs_ims", 1) == 0) {
+        if (!CommonUtil.isIMSEnabledBySetting(context)) {
             CSLog.d(TAG, "IMS disabled, not parsing");
             if (!CommonUtil.isModemDefault(readModemFile()[1])) {
                 CSLog.d(TAG, "Modem not default but IMS turned off as per settings.");
@@ -50,20 +57,18 @@ public class EventReceiver extends BroadcastReceiver {
         }
 
         String action = intent.getAction();
-        if ("android.telephony.action.CARRIER_CONFIG_CHANGED".equals(action)) {
+        if (CarrierConfigManager.ACTION_CARRIER_CONFIG_CHANGED.equals(action)) {
             CSLog.d(TAG, "Carrier config changed received");
 
             if (CommonUtil.isDefaultDataSlot(context, getSubId(context, intent))) {
                 CSLog.d(TAG, "Default data SIM loaded");
-                Intent service = new Intent(context, CustomizationSelectorService.class);
-                service.setAction("evaluate_action");
+                Intent service = new Intent(context, CustomizationSelectorService.class)
+                    .setAction(CustomizationSelectorService.EVALUATE_ACTION);
                 context.startService(service);
             }
-        } else if ("android.intent.action.BOOT_COMPLETED".equals(action)) {
-            if (CommonUtil.isDualSim(context)) {
+        } else if (Intent.ACTION_BOOT_COMPLETED.equals(action)) {
+            if (CommonUtil.isDualSim(context))
                 DSDataSubContentJob.scheduleJob(context);
-            }
-
             notifyStatus(context);
         }
     }
@@ -74,7 +79,7 @@ public class EventReceiver extends BroadcastReceiver {
         NotificationManager manager = context.getSystemService(NotificationManager.class);
         createChannel(manager);
 
-        if (Settings.System.getInt(context.getContentResolver(), "cs_notification", 1) == 1) {
+        if (Settings.System.getInt(context.getContentResolver(), CS_NOTIFICATION, 1) == 1) {
             manager.notify(1, new NotificationCompat.Builder(context, CHANNEL_ID)
                     .setContentTitle(CHANNEL_ID)
                     .setContentText("Status: ...")
@@ -86,8 +91,9 @@ public class EventReceiver extends BroadcastReceiver {
                             .bigText("Status: " + status[0] + "\nConfig: " + status[1] +
                                     "\nCust ID: " + SystemProperties.get(Configurator.PROP_TA_AC_VERSION, "N/A")))
                     .setColorized(true)
-                    .addAction(R.drawable.ic_baseline_sim_card_24, "Disable Notification",
-                            PendingIntent.getBroadcast(context, 1, new Intent(context, NotificationReceiver.class), PendingIntent.FLAG_UPDATE_CURRENT))
+                    .addAction(R.drawable.ic_baseline_sim_card_24,
+                               "Disable Notification",
+                               PendingIntent.getBroadcast(context, 1, new Intent(context, NotificationReceiver.class), PendingIntent.FLAG_UPDATE_CURRENT))
                     .build());
         }
     }
@@ -103,25 +109,9 @@ public class EventReceiver extends BroadcastReceiver {
 
     private String[] readModemFile() {
         String[] stat = {"N/A", "N/A"};
-        try {
-            File file = new File("/cache/modem/modem_switcher_status");
-            if (file.exists()) {
-                String line, data = "";
-
-                BufferedReader br = new BufferedReader(new FileReader(file));
-                while ((line = br.readLine()) != null) {
-                    data += line;
-                }
-                data = data.replace("\n", "").replace("\r", "")
-                        .replace("{", "").replace("}", "").replace("\"", "").trim();
-
-                return data.equals("") ? stat : new String[]{data.split(",")[0], data.split(",")[1]};
-            } else {
-                return stat;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return stat;
-        }
+        ModemSwitcher.ModemStatusContent data = ModemSwitcher.readModemStatusFile();
+        if(data != null)
+            stat = new String[]{data.success, data.currentModem};
+        return stat;
     }
 }
