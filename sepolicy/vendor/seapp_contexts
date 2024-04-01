@@ -1,2 +1,3 @@
 # TimeService app
 user=system seinfo=platform name=com.qualcomm.timeservice domain=qtimeservice type=system_app_data_file
+user=_app seinfo=platform name=com.qualcomm.timeservice domain=timeservice_app type=app_data_file levelFrom=all
