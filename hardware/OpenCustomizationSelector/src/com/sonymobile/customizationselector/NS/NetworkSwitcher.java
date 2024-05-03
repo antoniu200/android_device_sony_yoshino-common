@@ -33,7 +33,8 @@ public class NetworkSwitcher extends Service {
     private static final String TAG = "NetworkSwitcher";
     private static final String NS_LOWER_NETWORK = "ns_lowNet";
     private static final String NS_PREFERRED = "ns_preferred";
-
+    
+    private TelephonyManager tm;
     private AirplaneModeObserver mAirplaneModeObserver;
     private SimServiceObserver mSimServiceObserver;
     // Set until the phone is unlocked
@@ -80,10 +81,40 @@ public class NetworkSwitcher extends Service {
     }
 
     private void initProcess(int subID) {
-        if (CommonUtil.isSIMLoaded(getApplicationContext(), subID))
-            new Handler(getMainLooper()).postDelayed(() -> switchDown(subID), 1400);
+        final Context appContext = getApplicationContext();
+        if (CommonUtil.isSIMLoaded(appContext, subID)) {
+        int currentNetwork = getPreferredNetwork(subID);
+            if (!isLTE(currentNetwork) && CommonUtil.isIMSEnabledBySetting(appContext)) {
+            	int mRetryCount;
+            	
+            	// Waiting for VoLTE provisioning, trying 5 times
+            	for (mRetryCount = 0; !tm.isVolteAvailable() && mRetryCount < 5; mRetryCount++)
+	            new Handler(getMainLooper()).postDelayed(() -> {;}, 1400);
+	        if (tm.isVolteAvailable())
+	            d("initProcess: VoLTE provisioned after " + (char)(mRetryCount + '0') + " / 5 attempt(s).");
+	        else d("initProcess: Cannot obtain VoLTE provisioning.");
+	        
+	        // Waiting for VoWiFi provisioning, trying 5 times
+	        for (mRetryCount = 0; !tm.isWifiCallingAvailable() && mRetryCount < 5; mRetryCount++)
+	            new Handler(getMainLooper()).postDelayed(() -> {;}, 1400);
+	        if (tm.isWifiCallingAvailable())
+	            d("initProcess: VoWiFi provisioned after " + (char)(mRetryCount + '0') + " / 5 attempt(s).");
+	        else d("initProcess: Cannot obtain VoWiFi provisioning.");
+	        
+	        // Waiting for ViLTE provisioning, trying 5 times
+	        for (mRetryCount = 0; !tm.isVideoTelephonyAvailable() && mRetryCount < 5; mRetryCount++)
+	            new Handler(getMainLooper()).postDelayed(() -> {;}, 1400);
+	        if (tm.isVideoTelephonyAvailable())
+	            d("initProcess: ViLTE provisioned after " + (char)(mRetryCount + '0') + " / 5 attempt(s).");
+	        else d("initProcess: Cannot obtain ViLTE provisioning.");
+	        
+	        switchDown(subID);
+            }
+            else new Handler(getMainLooper()).postDelayed(() -> switchDown(subID), 1400);
+            
+        }
         else {
-            new SlotObserver(getApplicationContext()).register(subID,
+            new SlotObserver(appContext).register(subID,
                     () -> new Handler(getMainLooper()).postDelayed(() -> switchDown(subID), 1400));
         }
     }
@@ -97,7 +128,7 @@ public class NetworkSwitcher extends Service {
 
         int currentNetwork = getPreferredNetwork(subID);
         if (isLTE(currentNetwork)) {
-            TelephonyManager tm = getSystemService(TelephonyManager.class).createForSubscriptionId(subID);
+            tm = getSystemService(TelephonyManager.class).createForSubscriptionId(subID);
 
             setOriginalNetwork(subID, currentNetwork);
             changeNetwork(tm, subID, getLowerNetwork());
