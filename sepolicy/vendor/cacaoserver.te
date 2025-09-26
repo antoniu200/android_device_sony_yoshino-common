@@ -11,18 +11,22 @@ add_service(cacaoserver, cacaoserver_service)
 binder_use(cacaoserver)
 hwbinder_use(cacaoserver)
 get_prop(cacaoserver, hwservicemanager_prop)
+
 binder_call(cacaoserver, hal_camera_somc)
-binder_call(cacaoserver, mediaserver)
-binder_call(cacaoserver, mediacodec)
-binder_call(cacaoserver, system_server)
-binder_call(cacaoserver, platform_app)
 binder_call(cacaoserver, hal_graphics_allocator_default)
+binder_call(cacaoserver, mediacodec)
+binder_call(cacaoserver, mediaserver)
+binder_call(cacaoserver, platform_app)
+binder_call(cacaoserver, system_server)
+binder_call(cacaoserver, sonycamera_app)
 
 hal_client_domain(cacaoserver, hal_camera)
 hal_client_domain(cacaoserver, hal_graphics_allocator)
 
 allow cacaoserver hal_graphics_mapper_hwservice:hwservice_manager find;
 allow cacaoserver hidl_token_hwservice:hwservice_manager find;
+allow cacaoserver sonycamera_app:binder call;
+allow cacaoserver sonycamera_app:fd use;
 
 allow cacaoserver permission_service:service_manager find;
 
