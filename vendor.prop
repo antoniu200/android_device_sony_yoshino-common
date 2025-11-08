@@ -211,6 +211,9 @@ ro.soc.model=MSM8998
 ### THERMAL
 ro.hardware.thermal=somc
 
+### TIMEKEEP
+persist.vendor.timeadjust=0
+
 ### USB
 persist.vendor.usb.config.extra=none
 vendor.usb.rndis.func.name=gsi

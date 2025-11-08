@@ -1,0 +1,18 @@
+type timekeep, domain;
+type timekeep_exec, exec_type, vendor_file_type, file_type;
+
+init_daemon_domain(timekeep)
+
+# Grant permission to set system time
+allow timekeep self:capability sys_time;
+
+# Read /sys/class/rtc/rtc0/since_epoch
+allow timekeep sysfs_rtc:dir search;
+allow timekeep sysfs_rtc:{ file lnk_file } r_file_perms;
+
+# Write to /data/vendor/time/ats_2
+allow timekeep vendor_time_data_file:dir  { search create add_name };
+allow timekeep vendor_time_data_file:file { create open read write getattr setattr };
+
+# Set persist.vendor.timeadjust
+set_prop(timekeep, vendor_timekeep_prop);

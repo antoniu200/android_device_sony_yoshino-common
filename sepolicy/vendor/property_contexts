@@ -13,11 +13,11 @@ persist.vendor.wigig.npt.            u:object_r:wigig_prop:s0
 
 hw.wfd.                              u:object_r:wfd_prop:s0
 
-ro.vendor.hwc.drm.device u:object_r:cf_graphics_config_prop:s0 exact string
-vendor.hwc.drm.device u:object_r:cf_graphics_config_prop:s0 exact string
+ro.vendor.hwc.drm.device             u:object_r:cf_graphics_config_prop:s0 exact string
+vendor.hwc.drm.device                u:object_r:cf_graphics_config_prop:s0 exact string
 vendor.hwc.drm.primary_display_order u:object_r:cf_graphics_config_prop:s0 exact string
-vendor.hwc.drm.use_overlay_planes u:object_r:cf_graphics_config_prop:s0 exact int
-vendor.hwc.drm.scale_with_gpu u:object_r:cf_graphics_config_prop:s0 exact int
+vendor.hwc.drm.use_overlay_planes    u:object_r:cf_graphics_config_prop:s0 exact int
+vendor.hwc.drm.scale_with_gpu        u:object_r:cf_graphics_config_prop:s0 exact int
 
 init.taimport                        u:object_r:taimport_prop:s0
 
@@ -28,6 +28,7 @@ persist.camera.gyro.disable          u:object_r:vendor_persist_camera_prop:s0
 persist.sys.assert.panic             u:object_r:oneplus_prop:s0
 
 persist.vendor.qmi_log_on            u:object_r:oneplus_prop:s0
+persist.vendor.timeadjust            u:object_r:vendor_timekeep_prop:s0
 persist.vendor.data.target_id        u:object_r:vendor_target_id_prop:s0
 
 rild.libpath                         u:object_r:vendor_rild_libpath_prop:s0

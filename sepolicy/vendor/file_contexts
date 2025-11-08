@@ -86,13 +86,13 @@
 
 /sys/devices/soc/[a-z0-9]+.qcom,mdss_mdp/[a-z0-9]+.qcom,mdss_mdp:qcom,mdss_fb_primary/leds/lcd-backlight(/.*)? u:object_r:sysfs_graphics:s0
 /sys/devices/soc/soc:qcom,ipa_fws@[a-f0-9]+/subsys0/restart_level   u:object_r:sysfs_ssr_toggle:s0
-/sys/devices/soc/soc:qcom,kgsl-hyp/subsys[0-9]/restart_level    u:object_r:sysfs_ssr_toggle:s0
-/sys/devices/soc/[a-z0-9]+.qcom,venus/subsys[0-9]/restart_level u:object_r:sysfs_ssr_toggle:s0
-/sys/devices/soc/[a-z0-9]+.qcom,ssc/subsys[0-9]/restart_level   u:object_r:sysfs_ssr_toggle:s0
-/sys/devices/soc/[a-z0-9]+.qcom,spss/subsys[0-9]/restart_level  u:object_r:sysfs_ssr_toggle:s0
-/sys/devices/soc/[a-z0-9]+.qcom,lpass/subsys4/restart_level     u:object_r:sysfs_ssr_toggle:s0
-/sys/devices/soc/[a-z0-9]+.qcom,mss/subsys6/restart_level       u:object_r:sysfs_ssr_toggle:s0
-/sys/devices/soc/[a-z0-9]+.qcom,mss/subsys6/system_debug        u:object_r:sysfs_ssr_toggle:s0
+/sys/devices/soc/soc:qcom,kgsl-hyp/subsys[0-9]/restart_level        u:object_r:sysfs_ssr_toggle:s0
+/sys/devices/soc/[a-z0-9]+.qcom,venus/subsys[0-9]/restart_level     u:object_r:sysfs_ssr_toggle:s0
+/sys/devices/soc/[a-z0-9]+.qcom,ssc/subsys[0-9]/restart_level       u:object_r:sysfs_ssr_toggle:s0
+/sys/devices/soc/[a-z0-9]+.qcom,spss/subsys[0-9]/restart_level      u:object_r:sysfs_ssr_toggle:s0
+/sys/devices/soc/[a-z0-9]+.qcom,lpass/subsys4/restart_level         u:object_r:sysfs_ssr_toggle:s0
+/sys/devices/soc/[a-z0-9]+.qcom,mss/subsys6/restart_level           u:object_r:sysfs_ssr_toggle:s0
+/sys/devices/soc/[a-z0-9]+.qcom,mss/subsys6/system_debug            u:object_r:sysfs_ssr_toggle:s0
 
 /sys/devices/soc/[a-z0-9]+.qcom,mdss_rotator/caps               u:object_r:sysfs_graphics:s0
 
@@ -141,20 +141,25 @@
 /system/bin/taimport                                            u:object_r:taimport_exec:s0
 /system/bin/updatemiscta                                        u:object_r:updatemiscta_exec:s0
 
+# TimeKeep
+/sys/devices/soc\.0/qpnp-rtc-[0-9]/rtc/rtc0(/.*)?       u:object_r:sysfs_rtc:s0
+/vendor/bin/timekeep                                    u:object_r:timekeep_exec:s0
+/data/vendor/time/ats_2                                 u:object_r:vendor_time_data_file:s0
+
 # vendor services
-/(vendor|system/vendor)/bin/hw/display_cb                       u:object_r:display_cb_exec:s0
-/(vendor|system/vendor)/bin/hw/fpc_fingerprint@2\.1_HIDL-service    u:object_r:hal_fingerprint_fpc_exec:s0
-/(vendor|system/vendor)/bin/hw/illumination_service             u:object_r:illumination_service_exec:s0
-/(vendor|system/vendor)/bin/hw/kobjeventd                       u:object_r:kobjeventd_exec:s0
-/(vendor|system/vendor)/bin/hw/touchbacklightd                  u:object_r:touchbacklightd_exec:s0
-/(vendor|system/vendor)/bin/hw/vendor\.semc\.hardware\.light@1\.0-service   u:object_r:hal_light_default_exec:s0
-/(vendor|system/vendor)/bin/hw/android\.hardware\.light@2\.0-service\.yoshino  u:object_r:hal_light_default_exec:s0
+/(vendor|system/vendor)/bin/hw/display_cb                                                u:object_r:display_cb_exec:s0
+/(vendor|system/vendor)/bin/hw/fpc_fingerprint@2\.1_HIDL-service                         u:object_r:hal_fingerprint_fpc_exec:s0
+/(vendor|system/vendor)/bin/hw/illumination_service                                      u:object_r:illumination_service_exec:s0
+/(vendor|system/vendor)/bin/hw/kobjeventd                                                u:object_r:kobjeventd_exec:s0
+/(vendor|system/vendor)/bin/hw/touchbacklightd                                           u:object_r:touchbacklightd_exec:s0
+/(vendor|system/vendor)/bin/hw/vendor\.semc\.hardware\.light@1\.0-service                u:object_r:hal_light_default_exec:s0
+/(vendor|system/vendor)/bin/hw/android\.hardware\.light@2\.0-service\.yoshino            u:object_r:hal_light_default_exec:s0
 /(vendor|system/vendor)/bin/hw/android\.hardware\.power-service\.yoshino-libperfmgr      u:object_r:hal_power_default_exec:s0
-/(vendor|system/vendor)/bin/hw/vendor\.semc\.hardware\.secd@1\.0-service    u:object_r:hal_secd_default_exec:s0
-/(vendor|system/vendor)/bin/hw/vendor\.semc\.hardware\.thermal@(.*)?    u:object_r:hal_somc_thermal_daemon_exec:s0
-/(vendor|system/vendor)/bin/hw/vendor\.somc\.hardware\.camera\.provider@1\.0-service    u:object_r:hal_camera_somc_exec:s0
-/(vendor|system/vendor)/bin/hw/vendor\.somc\.hardware\.miscta@1\.0-service  u:object_r:hal_miscta_default_exec:s0
-/(vendor|system/vendor)/bin/hw/vendor\.somc\.hardware\.wifi@2\.0-service    u:object_r:hal_wifi_hostapd_default_exec:s0
+/(vendor|system/vendor)/bin/hw/vendor\.semc\.hardware\.secd@1\.0-service                 u:object_r:hal_secd_default_exec:s0
+/(vendor|system/vendor)/bin/hw/vendor\.semc\.hardware\.thermal@(.*)?                     u:object_r:hal_somc_thermal_daemon_exec:s0
+/(vendor|system/vendor)/bin/hw/vendor\.somc\.hardware\.camera\.provider@1\.0-service     u:object_r:hal_camera_somc_exec:s0
+/(vendor|system/vendor)/bin/hw/vendor\.somc\.hardware\.miscta@1\.0-service               u:object_r:hal_miscta_default_exec:s0
+/(vendor|system/vendor)/bin/hw/vendor\.somc\.hardware\.wifi@2\.0-service                 u:object_r:hal_wifi_hostapd_default_exec:s0
 /(vendor|system/vendor)/bin/charge_service                      u:object_r:charge_service_exec:s0
 /(vendor|system/vendor)/bin/chargemon                           u:object_r:chargemon_exec:s0
 /(vendor|system/vendor)/bin/chargemon_shutdown                  u:object_r:chargemon_exec:s0

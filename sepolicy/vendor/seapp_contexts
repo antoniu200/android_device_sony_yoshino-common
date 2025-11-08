@@ -1,8 +1,13 @@
 user=radio seinfo=platform name=.qtidataservices domain=qtidataservices_app type=radio_data_file
-user=_app seinfo=platform name=com.sonyericsson.android.camera domain=sonycamera_app type=app_data_file levelFrom=all
-user=_app seinfo=platform name=com.sonymobile.addoncamera.portraitselfie domain=sonycamera_app type=app_data_file levelFrom=all
-user=_app seinfo=platform name=com.sonyericsson.android.addoncamera.artfilter domain=sonycamera_app type=app_data_file levelFrom=all
-user=_app seinfo=platform name=com.sonyericsson.android.camera3d domain=sonycamera_app type=app_data_file levelFrom=all
+user=_app seinfo=platform name=com.sonyericsson.android.camera domain=sonycamera_app type=app_data_file levelFrom=user
+user=_app seinfo=platform name=com.sonymobile.addoncamera.portraitselfie domain=sonycamera_app type=app_data_file levelFrom=user
+user=_app seinfo=platform name=com.sonyericsson.android.addoncamera.artfilter domain=sonycamera_app type=app_data_file levelFrom=user
+user=_app seinfo=platform name=com.sonyericsson.android.camera3d domain=sonycamera_app type=app_data_file levelFrom=user
 
 # TimeService app
-user=system seinfo=platform name=com.qualcomm.timeservice domain=qtimeservice type=system_app_data_file levelFrom=all
+user=system seinfo=platform name=com.qualcomm.timeservice domain=qtimeservice type=system_app_data_file levelFrom=user
+
+# TimeKeep
+# Must be system_app, due to vendor_app not being defined =>
+# cannot allow sysfs_rtc, vendor_time_data_file and vendor_timekeep_prop
+user=system seinfo=platform name=com.sony.timekeep domain=system_app type=system_app_data_file levelFrom=user

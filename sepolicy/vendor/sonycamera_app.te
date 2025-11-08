@@ -29,6 +29,7 @@ allow sonycamera_app hal_secd_hwservice:hwservice_manager find;
 allow sonycamera_app hint_service:service_manager find;
 allow sonycamera_app idd_service:service_manager find;
 allow sonycamera_app location_service:service_manager find;
+allow sonycamera_app media_session_service:service_manager find;
 allow sonycamera_app mediaextractor_service:service_manager find;
 allow sonycamera_app mediametrics_service:service_manager find;
 allow sonycamera_app mediaserver_service:service_manager find;
