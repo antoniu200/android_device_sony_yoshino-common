@@ -52,19 +52,16 @@ private:
 
     std::mutex mLock, mLcdLock;
     std::string mLcdFile;
-    int mBacklightMax = 0;
     // Max values for the RGB LED(s)
     Color mMaxSingle, mMaxMix;
 
-    bool mHasButtonFile, mHasPersistenceFile;
-    bool mLowPersistenceEnabled = false;
+    bool mHasButtonFile;
     bool mIsBlinking = false;
     LightState batteryState;
     LightState notificationState;
 
     hidl_vec<Type> mSupportedTypes;
 
-    bool setLightBacklight(const LightState &state);
     bool setLightBattery(const LightState &state);
     bool setLightNotifications(const LightState &state);
     Status setLightButtons(const LightState &state);

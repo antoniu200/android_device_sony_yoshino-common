@@ -889,6 +889,12 @@ DisplayError HWDeviceDRM::SetRefreshRate(uint32_t refresh_rate) {
 DisplayError HWDeviceDRM::SetPanelBrightness(int level) {
   DisplayError err = kErrorNone;
   char buffer[kMaxSysfsCommandLength] = {0};
+  
+  // Clamp level
+  if (level < 1)
+    level = 1;
+  else if (level > 4095)
+    level = 4095;
 
   DLOGV_IF(kTagDriverConfig, "Set brightness level to %d", level);
   int fd = Sys::open_(kBrightnessNode, O_RDWR);

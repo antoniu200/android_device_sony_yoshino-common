@@ -28,38 +28,10 @@
 
 constexpr const char* BUTTON_FILE = LED_FILE(button-backlight, brightness);
 
-constexpr const char* LCD_CLASS_BASE = "/sys/class/leds/lcd-backlight";
-constexpr const char* LCD_CLASS_BASE2 = "/sys/class/backlight/panel0-backlight";
-static const char* PERSISTENCE_FILE = "/sys/class/graphics/fb0/msm_fb_persist_mode";
-constexpr int32_t DEFAULT_LOW_PERSISTENCE_MODE_BRIGHTNESS = 128;
-constexpr const char* LP_MODE_BRIGHTNESS_PROPERTY = "sys.display.low_persistence_mode_brightness";
-
 using ::android::hardware::light::V2_0::LightState;
-
-// Animation state (file-scope, single worker)
-static std::atomic<int>  sBacklightCurrent{-1};      // last written HW backlight code
-static std::atomic<int>  sBacklightTarget{-1};       // latest requested HW backlight code
-static std::atomic<bool> sStopRequested{false};      // set true to stop the worker
-static std::thread       sAnimatorThread;
-
-static std::mutex              sAnimMutex;           // guards the idle wait
-static std::condition_variable sAnimCv;
-
-// Animation policy
-static constexpr int kAnimTotalUs = 500000;          // aim for ~500 ms per change
-static constexpr int kTickUs      = 16667;           // ~16.7 ms (60 Hz frame pacing)
-
-// Small helper
-static inline int clampInt(int v, int lo, int hi) {
-    return v < lo ? lo : (v > hi ? hi : v);
-}
 
 static bool exists(const char* path) {
     return access(path, F_OK) == 0;
-}
-
-static bool exists(const std::string& path) {
-    return exists(path.c_str());
 }
 
 template<typename T>
@@ -102,13 +74,6 @@ static bool isLit(const LightState &state) {
     return state.color & 0x00ffffff;
 }
 
-static int rgbToBrightness(const LightState &state) {
-    const int color = state.color;
-    return ((77 * ((color >> 16) & 0x00ff))
-               + (150 * ((color >> 8) & 0x00ff)) + (29 * (color & 0x00ff)))
-        >> 8;
-}
-
 /// Scale a color value (0-255) to the range 0-maxBrightness
 static int scaleBrightness(const int brightness, const int maxBrightness) {
     // Adding half of the max (255/2=127) provides proper rounding while staying in integer mode
@@ -144,19 +109,11 @@ Light::Light() {
 
     // Assume those always exist
     std::vector<Type> supportedTypes{
-        Type::BACKLIGHT,
         Type::BATTERY,
         Type::NOTIFICATIONS,
         Type::ATTENTION,
     };
 
-    const std::string lcd_class_base = exists(LCD_CLASS_BASE) ? LCD_CLASS_BASE : LCD_CLASS_BASE2;
-    mLcdFile = lcd_class_base + "/brightness";
-    if(!exists(mLcdFile)) {
-        LOG(FATAL) << "Unknown LCD";
-    }
-    
-    readMaxBrightness((lcd_class_base + "/max_brightness").c_str(), mBacklightMax, "LCD");
     readMaxBrightness(LED_FILE(red, max_single_brightness), mMaxSingle.red, "red LED", 0xFF);
     readMaxBrightness(LED_FILE(green, max_single_brightness), mMaxSingle.green, "green LED", 0xFF);
     readMaxBrightness(LED_FILE(blue, max_single_brightness), mMaxSingle.blue, "blue LED", 0xFF);
@@ -164,134 +121,15 @@ Light::Light() {
     readMaxBrightness(LED_FILE(green, max_mix_brightness), mMaxMix.green, "green LED(mix)", 0xFF);
     readMaxBrightness(LED_FILE(blue, max_mix_brightness), mMaxMix.blue, "blue LED(mix)", 0xFF);
 
-    mHasPersistenceFile = exists(PERSISTENCE_FILE);
     mHasButtonFile = exists(BUTTON_FILE);
     if(mHasButtonFile)
         supportedTypes.push_back(Type::BUTTONS);
     mSupportedTypes = supportedTypes;
-    
-    // Start worker thread: fade backlight changes
-    if (!sAnimatorThread.joinable()) {
-        // Seed current from sysfs (fallback 0)
-        int seed = 0;
-        read(mLcdFile.c_str(), seed); // your existing helper
-        seed = clampInt(seed, 0, std::max(0, mBacklightMax));
-        sBacklightCurrent.store(seed, std::memory_order_relaxed);
-        sBacklightTarget.store(seed,  std::memory_order_relaxed);
-
-        sAnimatorThread = std::thread([this]{
-            using clock = std::chrono::steady_clock;
-            // optional: prctl(PR_SET_NAME, "backlight-anim", 0,0,0);
-
-            int    target = sBacklightTarget.load(std::memory_order_relaxed); // last plan's target
-            double bresenAccum = 0.0;                                         // Bresenham carry for per-tick mode
-
-            bool   perStepMode = true;     // true => ±1 with variable sleep (exact 500 ms)
-            int    perStepUs   = kTickUs;  // sleep per ±1 step in per-step mode
-            double perTickMoveFloat = 1.0; // ideal HW codes to advance each 16.7 ms tick
-
-            auto nextWake = clock::now();
-            std::unique_lock<std::mutex> lk(sAnimMutex);
-
-            while (!sStopRequested.load(std::memory_order_relaxed)) {
-                int curBrightness = sBacklightCurrent.load(std::memory_order_relaxed);
-                int newTarget     = sBacklightTarget.load(std::memory_order_relaxed);
-
-                // Idle: nothing to do, block until a new target arrives (zero CPU use)
-                if (curBrightness == newTarget) {
-                    sAnimCv.wait(lk, []{
-                        return sStopRequested.load(std::memory_order_relaxed)
-                            || sBacklightCurrent.load(std::memory_order_relaxed)
-                               != sBacklightTarget.load(std::memory_order_relaxed);
-                    });
-                    if (sStopRequested.load(std::memory_order_relaxed)) break;
-
-                    // Fresh wake — reset timing base and force a recompute below
-                    nextWake = clock::now();
-                    target = -1;
-                    bresenAccum = 0.0;
-                    continue;
-                }
-
-                // If the requested target changed, recompute the entire plan from the current HW value.
-                if (newTarget != target) {
-                    target = newTarget;
-                    const int delta  = target - curBrightness;
-                    int       steps  = std::abs(delta);
-                    steps = std::max(1, steps); // avoid div-by-zero
-
-                    // Your rule: variable duration if ≥ tick; else clamp to tick and scale the increment.
-                    const int tStep = kAnimTotalUs / steps; // μs per ±1 step if we used ±1
-                    if (tStep >= kTickUs) {
-                        // PER-STEP MODE: one-code increments with per-step sleep so total ≈ 500 ms
-                        perStepMode = true;
-                        perStepUs   = tStep;
-                    } else {
-                        // PER-TICK MODE: fixed ~16.7 ms cadence, advance multiple codes per tick
-                        perStepMode = false;
-                        const int ticks = (kAnimTotalUs + kTickUs - 1) / kTickUs; // ceil(500ms / 16.7ms) ≈ 30
-                        perTickMoveFloat = static_cast<double>(steps) / static_cast<double>(ticks); // ~136.5 full-span
-                        bresenAccum = 0.0;
-                    }
-                    nextWake = clock::now();
-                }
-
-                // Advance towards 'target' by one increment (per-step or per-tick)
-                curBrightness = sBacklightCurrent.load(std::memory_order_relaxed);
-                newTarget     = sBacklightTarget.load(std::memory_order_relaxed);
-                int remaining = std::abs(newTarget - curBrightness);
-                if (remaining == 0) continue; // will idle next loop
-
-                const int direction = (newTarget > curBrightness) ? 1 : -1;
-                int move = 1;
-
-                if (perStepMode) {
-                    // ±1 with per-step sleep gives exact total ≈ 500 ms for small deltas
-                    move = 1;
-                    nextWake += std::chrono::microseconds(perStepUs);
-                } else {
-                    // Distribute integer moves so average equals perTickMoveFloat (Bresenham style)
-                    bresenAccum += perTickMoveFloat;
-                    move = static_cast<int>(bresenAccum);
-                    if (move < 1) move = 1;
-                    bresenAccum -= move;
-
-                    // Guard against a huge single jump if the thread woke very late:
-                    // - nominalPerTickMove ≈ expected move per 16.7 ms when on-time
-                    // - maxCatchUpPerTick caps burst catch-up to 3× nominal to keep frames smooth
-                    const int nominalPerTickMove = static_cast<int>(perTickMoveFloat + 0.5);
-                    const int maxCatchUpPerTick  = std::max(1, nominalPerTickMove * 3);
-                    if (move > maxCatchUpPerTick) move = maxCatchUpPerTick;
-
-                    nextWake += std::chrono::microseconds(kTickUs);
-                }
-
-                if (move > remaining) move = remaining;
-                const int next = curBrightness + direction * move;
-
-                // One sysfs write per iteration (≤ 60 Hz). Reuse your existing write helper.
-                if (write(mLcdFile.c_str(), next)) {
-                    sBacklightCurrent.store(next, std::memory_order_relaxed);
-                }
-
-                // Sleep until next cadence slot; if late, schedule from 'now' to avoid drift
-                auto now = clock::now();
-                if (nextWake < now) nextWake = now;
-                lk.unlock();
-                std::this_thread::sleep_until(nextWake);
-                lk.lock();
-            }
-        });
-    }
 }
 
 Return<Status> Light::setLight(Type type, const LightState &state) {
     bool status;
     switch (type) {
-    case Type::BACKLIGHT:
-        LOG(DEBUG) << __func__ << " : Type::BACKLIGHT";
-        status = setLightBacklight(state);
-        break;
     case Type::BUTTONS:
         LOG(DEBUG) << __func__ << " : Type::BUTTONS";
         return setLightButtons(state);
@@ -316,46 +154,6 @@ Return<Status> Light::setLight(Type type, const LightState &state) {
         return Status::LIGHT_NOT_SUPPORTED;
     }
     return status ? Status::SUCCESS : Status::UNKNOWN;
-}
-
-bool Light::setLightBacklight(const LightState &state) {
-    std::lock_guard<std::mutex> lock(mLcdLock);
-
-    bool status = true;
-    int brightness = rgbToBrightness(state);
-    const bool lpEnabled = state.brightnessMode == Brightness::LOW_PERSISTENCE;
-
-    const bool cannotHandlePersistence = !mHasPersistenceFile && lpEnabled;
-    // If persistence mode has been changed
-    if (mHasPersistenceFile && mLowPersistenceEnabled != lpEnabled) {
-        if ((status = write(PERSISTENCE_FILE, lpEnabled ? 1 : 0)))
-            LOG(ERROR) << __func__ << " : Failed to write to " << PERSISTENCE_FILE << ": " << strerror(errno);
-        if (lpEnabled)
-            brightness = property_get_int32(LP_MODE_BRIGHTNESS_PROPERTY, DEFAULT_LOW_PERSISTENCE_MODE_BRIGHTNESS);
-        mLowPersistenceEnabled = lpEnabled;
-    }
-
-    if (!status)
-        return false;
-
-    if (brightness && mBacklightMax > 0) {
-        // Scale by max brightness but make sure the min and max values are 1 and max_lcd_brightness
-        brightness = (brightness == 255) ? mBacklightMax
-                                         : scaleBrightness(brightness - 1, mBacklightMax) + 1;
-    }
-
-    // Immediate for LP/off/0
-    if (lpEnabled || brightness == 0) {
-        const bool ok = write(mLcdFile.c_str(), brightness);
-        sBacklightCurrent.store(brightness, std::memory_order_relaxed);
-        sBacklightTarget.store(brightness,  std::memory_order_relaxed);
-        return !cannotHandlePersistence && ok;
-    }
-
-    // Normal case: post the target and wake the fade animator
-    sBacklightTarget.store(clampInt(brightness, 0, mBacklightMax), std::memory_order_relaxed);
-    sAnimCv.notify_one();
-    return !cannotHandlePersistence && true;
 }
 
 bool write_lut(const char* file, int brightness) {

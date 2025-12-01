@@ -444,6 +444,62 @@ static int32_t GetDisplayAttribute(hwc2_device_t *device, hwc2_display_t display
                                          attribute, out_value);
 }
 
+int32_t HWCSession::GetDisplayCapabilities(hwc2_device_t *device,
+                                           hwc2_display_t display,
+                                           uint32_t *outNumCapabilities,
+                                           uint32_t *outCapabilities) {
+  if (!device || !outNumCapabilities) {
+    return HWC2_ERROR_BAD_PARAMETER;
+  }
+
+  HWCSession *hwc_session = static_cast<HWCSession *>(device);
+
+  if (display >= HWC_NUM_DISPLAY_TYPES ||
+      !hwc_session->hwc_display_[display]) {
+    return HWC2_ERROR_BAD_DISPLAY;
+  }
+
+    uint32_t caps[2];
+    uint32_t count = 0;
+
+    if (display == HWC_DISPLAY_PRIMARY) {
+      caps[count++] = HWC2_DISPLAY_CAPABILITY_DOZE;
+      caps[count++] = HWC2_DISPLAY_CAPABILITY_BRIGHTNESS;
+    }
+
+  // First pass: SF may call with outCapabilities == nullptr to query count.
+  if (!outCapabilities) {
+    *outNumCapabilities = count;
+    return HWC2_ERROR_NONE;
+  }
+
+  // Second pass: copy as many as requested, but report the true count.
+  uint32_t to_copy = (*outNumCapabilities < count) ? *outNumCapabilities : count;
+  for (uint32_t i = 0; i < to_copy; i++) {
+    outCapabilities[i] = caps[i];
+  }
+
+  *outNumCapabilities = count;
+  return HWC2_ERROR_NONE;
+}
+
+int32_t HWCSession::GetDisplayBrightnessSupport(hwc2_device_t *device, hwc2_display_t display,
+                                                bool *outSupport) {
+  if (!device || !outSupport) {
+    return HWC2_ERROR_BAD_PARAMETER;
+  }
+
+  HWCSession *hwc_session = static_cast<HWCSession *>(device);
+  if (display >= HWC_NUM_DISPLAY_TYPES || !hwc_session->hwc_display_[display]) {
+    return HWC2_ERROR_BAD_DISPLAY;
+  }
+
+  // Only built-in displays support panel brightness
+  *outSupport = (display == HWC_DISPLAY_PRIMARY);
+  return HWC2_ERROR_NONE;
+}
+
+
 static int32_t GetDisplayConfigs(hwc2_device_t *device, hwc2_display_t display,
                                  uint32_t *out_num_configs, hwc2_config_t *out_configs) {
   return HWCSession::CallDisplayFunction(device, display, &HWCDisplay::GetDisplayConfigs,
@@ -630,6 +686,31 @@ static int32_t SetCursorPosition(hwc2_device_t *device, hwc2_display_t display, 
   return status;
 }
 
+int32_t HWCSession::SetDisplayBrightness(hwc2_device_t *device, hwc2_display_t display,
+                                         float brightness) {
+  if (!device)
+    return HWC2_ERROR_BAD_PARAMETER;
+
+  HWCSession *hwc_session = static_cast<HWCSession *>(device);
+
+  if (display >= HWC_NUM_DISPLAY_TYPES || !hwc_session->hwc_display_[display])
+    return HWC2_ERROR_BAD_DISPLAY;
+
+  // Clamp brightness
+  if (brightness < 0.0f)
+    brightness = 0.0f;
+  if (brightness > 1.0f)
+    brightness = 1.0f;
+
+  constexpr int kPanelMax = 4095;
+  int level = static_cast<int>(brightness * kPanelMax + 0.5f);
+
+  auto hwc_display = hwc_session->hwc_display_[display];
+  int ret = hwc_display->SetPanelBrightness(level);
+
+  return (ret == 0) ? HWC2_ERROR_NONE : HWC2_ERROR_UNSUPPORTED;
+}
+
 static int32_t SetLayerBlendMode(hwc2_device_t *device, hwc2_display_t display, hwc2_layer_t layer,
                                  int32_t int_mode) {
   if (int_mode < HWC2_BLEND_MODE_INVALID || int_mode > HWC2_BLEND_MODE_COVERAGE) {
@@ -778,6 +859,125 @@ int32_t HWCSession::ValidateDisplay(hwc2_device_t *device, hwc2_display_t displa
   return INT32(status);
 }
 
+// Hardware Composer v2.3
+int32_t HWCSession::GetPerFrameMetadataKeys(hwc2_device_t * /*device*/,
+                                            hwc2_display_t /*display*/,
+                                            uint32_t *outNumKeys,
+                                            int32_t *outKeys) {
+  if (!outNumKeys) {
+    return HWC2_ERROR_BAD_PARAMETER;
+  }
+
+  // No supported keys.
+  *outNumKeys = 0;
+  return HWC2_ERROR_UNSUPPORTED;
+}
+
+int32_t HWCSession::GetRenderIntents(hwc2_device_t * /*device*/,
+                                     hwc2_display_t /*display*/,
+                                     int32_t mode,
+                                     uint32_t *outNumIntents,
+                                     int32_t *outIntents) {
+  if (!outNumIntents) {
+    return HWC2_ERROR_BAD_PARAMETER;
+  }
+
+  // Decide the single "default" intent we support for this mode.
+  int32_t intent;
+
+  switch (mode) {
+    // HDR modes: spec requires TONE_MAP_COLORIMETRIC be available.
+    case HAL_COLOR_MODE_BT2100_PQ:
+    case HAL_COLOR_MODE_BT2100_HLG:
+      intent = HAL_RENDER_INTENT_TONE_MAP_COLORIMETRIC;
+      break;
+
+    // All other modes (SDR, Native, sRGB, P3, etc.)
+    default:
+      intent = HAL_RENDER_INTENT_COLORIMETRIC;
+      break;
+  }
+
+  // First pass: framework asks "how many intents?"
+  if (!outIntents) {
+    *outNumIntents = 1;
+    return HWC2_ERROR_NONE;
+  }
+
+  // Second pass: framework gave us a buffer, fill it.
+  if (*outNumIntents < 1) {
+    return HWC2_ERROR_BAD_PARAMETER;
+  }
+
+  outIntents[0] = intent;
+  *outNumIntents = 1;
+
+  return HWC2_ERROR_NONE;
+}
+
+int32_t HWCSession::SetColorModeWithRenderIntent(hwc2_device_t * /*device*/,
+                                                 hwc2_display_t /*display*/,
+                                                 int32_t /*mode*/,
+                                                 int32_t /*intent*/) {
+  // Treat as unsupported; SF should fall back to SetColorMode.
+  return HWC2_ERROR_UNSUPPORTED;
+}
+
+int32_t HWCSession::GetDataspaceSaturationMatrix(hwc2_device_t * /*device*/,
+                                                 int32_t /*dataspace*/,
+                                                 float *outMatrix) {
+  if (!outMatrix) {
+    return HWC2_ERROR_BAD_PARAMETER;
+  }
+
+  // No dataspace-specific saturation matrix; identity is fine.
+  // 4x4 identity matrix.
+  for (int i = 0; i < 16; i++) {
+    outMatrix[i] = (i % 5 == 0) ? 1.0f : 0.0f;
+  }
+  return HWC2_ERROR_NONE;
+}
+
+int32_t HWCSession::GetDisplayIdentificationData(hwc2_device_t * /*device*/,
+                                                 hwc2_display_t /*display*/,
+                                                 uint8_t *outPort,
+                                                 uint32_t *outDataSize,
+                                                 uint8_t *outData) {
+  if (!outDataSize) {
+    return HWC2_ERROR_BAD_PARAMETER;
+  }
+
+  // No EDID / identification data.
+  if (outPort) {
+    *outPort = 0;
+  }
+
+  if (!outData) {
+    *outDataSize = 0;
+    return HWC2_ERROR_NONE;
+  }
+
+  *outDataSize = 0;
+  return HWC2_ERROR_NONE;
+}
+
+int32_t HWCSession::GetDisplayedContentSample(hwc2_device_t * /*device*/,
+                                              hwc2_display_t /*display*/,
+                                              uint64_t /*maxFrames*/,
+                                              uint64_t /*timestamp*/,
+                                              uint64_t *outNumFrames,
+                                              int32_t *outNumSamples,
+                                              uint64_t **outSamples) {
+  if (!outNumFrames || !outNumSamples) {
+    return HWC2_ERROR_BAD_PARAMETER;
+  }
+
+  // No content sampling support.
+  *outNumFrames = 0;
+  *outNumSamples = 0;
+  return HWC2_ERROR_UNSUPPORTED;
+}
+
 hwc2_function_pointer_t HWCSession::GetFunction(struct hwc2_device *device,
                                                 int32_t int_descriptor) {
   auto descriptor = static_cast<HWC2::FunctionDescriptor>(int_descriptor);
@@ -805,6 +1005,10 @@ hwc2_function_pointer_t HWCSession::GetFunction(struct hwc2_device *device,
       return AsFP<HWC2_PFN_GET_COLOR_MODES>(GetColorModes);
     case HWC2::FunctionDescriptor::GetDisplayAttribute:
       return AsFP<HWC2_PFN_GET_DISPLAY_ATTRIBUTE>(GetDisplayAttribute);
+    case HWC2::FunctionDescriptor::GetDisplayCapabilities:
+      return AsFP<HWC2_PFN_GET_DISPLAY_CAPABILITIES>(HWCSession::GetDisplayCapabilities);
+    case HWC2::FunctionDescriptor::GetDisplayBrightnessSupport:
+      return AsFP<HWC2_PFN_GET_DISPLAY_BRIGHTNESS_SUPPORT>(HWCSession::GetDisplayBrightnessSupport);
     case HWC2::FunctionDescriptor::GetDisplayConfigs:
       return AsFP<HWC2_PFN_GET_DISPLAY_CONFIGS>(GetDisplayConfigs);
     case HWC2::FunctionDescriptor::GetDisplayName:
@@ -834,7 +1038,9 @@ hwc2_function_pointer_t HWCSession::GetFunction(struct hwc2_device *device,
     case HWC2::FunctionDescriptor::SetColorTransform:
       return AsFP<HWC2_PFN_SET_COLOR_TRANSFORM>(SetColorTransform);
     case HWC2::FunctionDescriptor::SetCursorPosition:
-      return AsFP<HWC2_PFN_SET_CURSOR_POSITION>(SetCursorPosition);
+      return AsFP<HWC2_PFN_SET_CURSOR_POSITION>(SetCursorPosition);// In HWCSession::GetFunction(...)
+    case HWC2::FunctionDescriptor::SetDisplayBrightness:
+      return AsFP<HWC2_PFN_SET_DISPLAY_BRIGHTNESS>(HWCSession::SetDisplayBrightness);
     case HWC2::FunctionDescriptor::SetLayerBlendMode:
       return AsFP<HWC2_PFN_SET_LAYER_BLEND_MODE>(SetLayerBlendMode);
     case HWC2::FunctionDescriptor::SetLayerBuffer:
@@ -869,6 +1075,21 @@ hwc2_function_pointer_t HWCSession::GetFunction(struct hwc2_device *device,
       return AsFP<HWC2_PFN_SET_VSYNC_ENABLED>(SetVsyncEnabled);
     case HWC2::FunctionDescriptor::ValidateDisplay:
       return AsFP<HWC2_PFN_VALIDATE_DISPLAY>(HWCSession::ValidateDisplay);
+
+    // Hardware Composer v2.3
+    case HWC2::FunctionDescriptor::GetPerFrameMetadataKeys:
+        return AsFP<HWC2_PFN_GET_PER_FRAME_METADATA_KEYS>(HWCSession::GetPerFrameMetadataKeys);
+    case HWC2::FunctionDescriptor::GetRenderIntents:
+        return AsFP<HWC2_PFN_GET_RENDER_INTENTS>(HWCSession::GetRenderIntents);
+    case HWC2::FunctionDescriptor::SetColorModeWithRenderIntent:
+        return AsFP<HWC2_PFN_SET_COLOR_MODE_WITH_RENDER_INTENT>(HWCSession::SetColorModeWithRenderIntent);
+    case HWC2::FunctionDescriptor::GetDataspaceSaturationMatrix:
+        return AsFP<HWC2_PFN_GET_DATASPACE_SATURATION_MATRIX>(HWCSession::GetDataspaceSaturationMatrix);
+    case HWC2::FunctionDescriptor::GetDisplayIdentificationData:
+        return AsFP<HWC2_PFN_GET_DISPLAY_IDENTIFICATION_DATA>(HWCSession::GetDisplayIdentificationData);
+    case HWC2::FunctionDescriptor::GetDisplayedContentSample:
+        return AsFP<HWC2_PFN_GET_DISPLAYED_CONTENT_SAMPLE>(HWCSession::GetDisplayedContentSample);
+
     default:
       DLOGD("Unknown/Unimplemented function descriptor: %d (%s)", int_descriptor,
             to_string(descriptor).c_str());

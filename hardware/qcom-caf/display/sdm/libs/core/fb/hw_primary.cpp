@@ -519,6 +519,12 @@ DisplayError HWPrimary::SetDisplayMode(const HWDisplayMode hw_display_mode) {
 DisplayError HWPrimary::SetPanelBrightness(int level) {
   char buffer[kMaxSysfsCommandLength] = {0};
 
+  // Clamp level
+  if (level < 1)
+    level = 1;
+  else if (level > 4095)
+    level = 4095;
+
   DLOGV_IF(kTagDriverConfig, "Set brightness level to %d", level);
   int fd = Sys::open_(kBrightnessNode, O_RDWR);
   if (fd < 0) {

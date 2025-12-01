@@ -152,6 +152,12 @@ class HWCSession : hwc2_device_t, HWCUEventListener, IDisplayConfig, public qCli
   static int32_t DestroyLayer(hwc2_device_t *device, hwc2_display_t display, hwc2_layer_t layer);
   static int32_t DestroyVirtualDisplay(hwc2_device_t *device, hwc2_display_t display);
   static void Dump(hwc2_device_t *device, uint32_t *out_size, char *out_buffer);
+  static int32_t SetDisplayBrightness(hwc2_device_t *device, hwc2_display_t display,
+                                      float brightness);
+  static int32_t GetDisplayBrightnessSupport(hwc2_device_t *device, hwc2_display_t display,
+                                             bool *outSupport);
+  static int32_t GetDisplayCapabilities(hwc2_device_t *device, hwc2_display_t display,
+                                        uint32_t *outNumCapabilities, uint32_t *outCapabilities);
   static int32_t PresentDisplay(hwc2_device_t *device, hwc2_display_t display,
                                 int32_t *out_retire_fence);
   static int32_t RegisterCallback(hwc2_device_t *device, int32_t descriptor,
@@ -166,6 +172,40 @@ class HWCSession : hwc2_device_t, HWCUEventListener, IDisplayConfig, public qCli
                               int32_t /*android_color_mode_t*/ int_mode);
   static int32_t SetColorTransform(hwc2_device_t *device, hwc2_display_t display,
                                    const float *matrix, int32_t /*android_color_transform_t*/ hint);
+  // Hardware Composer v2.3
+  static int32_t GetPerFrameMetadataKeys(hwc2_device_t *device,
+                                         hwc2_display_t display,
+                                         uint32_t *outNumKeys,
+                                         int32_t *outKeys);
+
+  static int32_t GetRenderIntents(hwc2_device_t *device,
+                                  hwc2_display_t display,
+                                  int32_t mode,
+                                  uint32_t *outNumIntents,
+                                  int32_t *outIntents);
+
+  static int32_t SetColorModeWithRenderIntent(hwc2_device_t *device,
+                                              hwc2_display_t display,
+                                              int32_t mode,
+                                              int32_t intent);
+
+  static int32_t GetDataspaceSaturationMatrix(hwc2_device_t *device,
+                                              int32_t dataspace,
+                                              float *outMatrix);
+
+  static int32_t GetDisplayIdentificationData(hwc2_device_t *device,
+                                              hwc2_display_t display,
+                                              uint8_t *outPort,
+                                              uint32_t *outDataSize,
+                                              uint8_t *outData);
+
+  static int32_t GetDisplayedContentSample(hwc2_device_t *device,
+                                           hwc2_display_t display,
+                                           uint64_t maxFrames,
+                                           uint64_t timestamp,
+                                           uint64_t *outNumFrames,
+                                           int32_t *outNumSamples,
+                                           uint64_t **outSamples);
 
  private:
   static const int kExternalConnectionTimeoutMs = 500;
