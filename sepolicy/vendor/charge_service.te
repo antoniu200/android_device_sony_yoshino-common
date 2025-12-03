@@ -1,25 +1,28 @@
-# charge_service.te
-
 type charge_service, domain;
 type charge_service_exec, exec_type, vendor_file_type, file_type;
 
 init_daemon_domain(charge_service)
 
+# Properties / hwbinder
 get_prop(charge_service, hwservicemanager_prop)
 hwbinder_use(charge_service)
 
+# Sockets
 unix_socket_connect(charge_service, tad, tad)
-
 allow charge_service self:netlink_kobject_uevent_socket create_socket_perms_no_ioctl;
 
+# Sysfs: battery
 allow charge_service sysfs_battery_supply:dir r_dir_perms;
 allow charge_service sysfs_battery_supply:file rw_file_perms;
 allow charge_service sysfs_battery_supply:lnk_file r_file_perms;
 
+# Sysfs: batt_aging_level
 r_dir_file(charge_service, sysfs_batteryinfo)
+allow charge_service sysfs_batteryinfo:file rw_file_perms;
 
 r_dir_file(charge_service, sysfs_usb_supply)
 
+# Sysfs: wake lock
 allow charge_service sysfs_wake_lock:file rw_file_perms;
 
 # /dev/kmsg
