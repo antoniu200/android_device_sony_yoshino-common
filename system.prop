@@ -153,6 +153,7 @@ telephony.lteOnCdmaDevice=0
 ### SD
 # Encryption supported
 ro.sdcrypt.supported=true
+ro.crypto.volume.filenames_mode=aes-256-cts
 
 ### SENSORS
 persist.vendor.sensors.direct_channel=true
