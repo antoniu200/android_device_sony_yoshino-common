@@ -37,7 +37,8 @@ PRODUCT_PACKAGES += \
 
 ### DISPLAY
 PRODUCT_PACKAGES += \
-    vendor.display.config@1.3
+    vendor.display.config@1.3 \
+    AssertiveDisplayRegistrar
 
 ### GRAPHICS
 PRODUCT_PACKAGES += \

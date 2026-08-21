@@ -28,3 +28,7 @@ allow display_cb display_vendor_data_file:file create_file_perms;
 allow display_cb sysfs_dsi_panel:file r_file_perms;
 
 allow display_cb vndbinder_device:chr_file r_file_perms;
+
+# Allow display_cb to send commands to mm-pp-dpps through
+# /dev/socket/pps.
+unix_socket_connect(display_cb, pps, mm-pp-daemon)

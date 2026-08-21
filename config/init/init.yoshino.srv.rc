@@ -31,6 +31,31 @@ service adsprpcd /system/vendor/bin/adsprpcd
    group media
    writepid /dev/cpuset/system-background/tasks
 
+### ASSERTIVE DISPLAY
+service vendor.ppd /vendor/bin/mm-pp-dpps
+    class late_start
+    user system
+    group system graphics
+    socket pps stream 0660 system system
+    disabled
+    
+service vendor.ppd-ad-enable /vendor/bin/AssertiveDisplayRegistrar
+    class late_start
+    user system
+    group system
+    disabled
+    oneshot
+
+on property:init.svc.vendor.hwcomposer-2-3=stopped
+    stop vendor.ppd
+
+on property:init.svc.vendor.hwcomposer-2-3=running
+    start vendor.ppd
+    start vendor.ppd-ad-enable
+
+on property:init.svc.vendor.hwcomposer-2-3=restarting
+    stop vendor.ppd
+
 ### CHARGER
 # QCOM Quick Charge
 service vendor.hvdcp_opti /system/vendor/bin/hvdcp_opti
@@ -70,23 +95,6 @@ service cnss-daemon /system/vendor/bin/cnss-daemon -n -l
 
 on shutdown
     stop cnss-daemon
-
-### DISPLAY
-service vendor.ppd /vendor/bin/mm-pp-dpps
-    class late_start
-    user system
-    group system graphics
-    socket pps stream 0660 system system
-    disabled
-
-on property:init.svc.vendor.hwcomposer-2-1=stopped
-    stop vendor.ppd
-
-on property:init.svc.vendor.hwcomposer-2-1=running
-    start vendor.ppd
-
-on property:init.svc.vendor.hwcomposer-2-1=restarting
-    stop vendor.ppd
 
 ### GNSS
 service mlid /vendor/bin/mlid
