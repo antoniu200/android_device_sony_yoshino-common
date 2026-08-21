@@ -77,7 +77,7 @@ static bool isLit(const LightState &state) {
 /// Scale a color value (0-255) to the range 0-maxBrightness
 static int scaleBrightness(const int brightness, const int maxBrightness) {
     // Adding half of the max (255/2=127) provides proper rounding while staying in integer mode
-    return (brightness * maxBrightness + 127) / 255;
+    return (brightness * maxBrightness / 2 + 127) / 255;
 }
 
 static void readMaxBrightness(const char* file, int& maxBrightness, const char* name, int defaultValue = -1) {
