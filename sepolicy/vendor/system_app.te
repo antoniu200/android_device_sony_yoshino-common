@@ -22,4 +22,3 @@ set_prop(system_app, vendor_clearpad_prop)
 get_prop(system_app, vendor_clearpad_prop)
 # Also set backlight brightness
 set_prop(system_app, vendor_ultradim_prop)
-

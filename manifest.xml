@@ -74,8 +74,6 @@
             <name>IDrmFactory</name>
             <instance>default</instance>
         </interface>
-        <fqname>@1.0::ICryptoFactory/default</fqname>
-        <fqname>@1.0::IDrmFactory/default</fqname>
         <fqname>@1.1::ICryptoFactory/widevine</fqname>
         <fqname>@1.1::IDrmFactory/widevine</fqname>
     </hal>
@@ -91,9 +89,12 @@
     <hal format="hidl">
         <name>android.hardware.gnss</name>
         <transport>hwbinder</transport>
+        <version>1.1</version>
+        <interface>
+            <name>IGnss</name>
+            <instance>default</instance>
+        </interface>
         <fqname>@1.0::IGnss/gnss_vendor</fqname>
-        <fqname>@1.1::IGnss/default</fqname>
-        <fqname>@2.1::IGnss/default</fqname>
     </hal>
     <hal format="hidl">
         <name>android.hardware.graphics.allocator</name>
@@ -171,11 +172,30 @@
             <instance>default</instance>
         </interface>
     </hal>
+    <!--- missing HALs>
+    <hal format="hidl">
+        <name>android.hardware.power</name>
+        <transport>hwbinder</transport>
+        <version>1.0</version>
+        <interface>
+            <name>IPower</name>
+            <instance>default</instance>
+        </interface>
+        <fqname>@1.0::IPower/default</fqname>
+    </hal>
+    < End of missing HALs -->
     <hal format="hidl">
         <name>android.hardware.radio</name>
         <transport>hwbinder</transport>
-        <fqname>@1.1::ISap/slot1</fqname>
-        <fqname>@1.4::IRadio/slot1</fqname>
+        <version>1.1</version>
+        <interface>
+            <name>IRadio</name>
+            <instance>slot1</instance>
+        </interface>
+        <interface>
+            <name>ISap</name>
+            <instance>slot1</instance>
+        </interface>
     </hal>
     <hal format="hidl">
         <name>android.hardware.radio.config</name>
@@ -187,18 +207,9 @@
         </interface>
     </hal>
     <hal format="hidl">
-        <name>android.hardware.radio.deprecated</name>
-        <transport>hwbinder</transport>
-        <version>1.0</version>
-        <interface>
-            <name>IOemHook</name>
-            <instance>slot1</instance>
-        </interface>
-    </hal>
-    <hal format="hidl">
         <name>android.hardware.secure_element</name>
         <transport>hwbinder</transport>
-        <version>1.2</version>
+        <version>1.0</version>
         <interface>
             <name>ISecureElement</name>
             <instance>SIM1</instance>
@@ -244,6 +255,31 @@
             <instance>default</instance>
         </interface>
     </hal>
+    
+    <!--- missing HALs>
+    <hal format="hidl">
+        <name>android.hardware.thermal</name>
+        <transport>hwbinder</transport>
+        <version>1.0</version>
+        <interface>
+            <name>IThermal</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
+    < End of missing HALs -->
+    
+    <!--- Added by platform/hardware.mk>
+    <hal format="hidl">
+        <name>android.hardware.usb</name>
+        <transport>hwbinder</transport>
+        <version>1.0</version>
+        <interface>
+            <name>IUsb</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
+    < -->
+    
     <hal format="hidl">
         <name>android.hardware.vibrator</name>
         <transport>hwbinder</transport>
@@ -262,6 +298,39 @@
             <instance>default</instance>
         </interface>
     </hal>
+    <!-- Added by platform/hardware.mk>
+    <hal format="hidl">
+        <name>android.hardware.wifi</name>
+        <transport>hwbinder</transport>
+        <version>1.2</version>
+        <interface>
+            <name>IWifi</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
+    <hal format="hidl">
+        <name>android.hardware.wifi.supplicant</name>
+        <transport>hwbinder</transport>
+        <version>1.1</version>
+        <interface>
+            <name>ISupplicant</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
+    < -->
+    
+    <!-- Missing HALs: possibly added by platform/hardware.mk >
+    <hal format="hidl">
+        <name>android.hardware.wifi.hostapd</name>
+        <transport>hwbinder</transport>
+        <version>1.0</version>
+        <interface>
+            <name>IHostapd</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
+    < End of missing HALs -->
+    
     <hal format="hidl">
         <name>com.fingerprints.extension</name>
         <transport>hwbinder</transport>
@@ -296,7 +365,7 @@
     <hal format="hidl">
         <name>com.qualcomm.qti.imscmservice</name>
         <transport>hwbinder</transport>
-        <version>2.2</version>
+        <version>2.1</version>
         <interface>
             <name>IImsCmService</name>
             <instance>qti.ims.connectionmanagerservice</instance>
@@ -311,6 +380,41 @@
             <instance>com.qualcomm.qti.uceservice</instance>
         </interface>
     </hal>
+    
+    <!-- Missing HALs >
+    <hal format="hidl">
+        <name>com.qualcomm.qti.wifidisplayhal</name>
+        <transport>hwbinder</transport>
+        <version>1.0</version>
+        <interface>
+            <name>IDSManager</name>
+            <instance>wifidisplaydshal</instance>
+        </interface>
+        <interface>
+            <name>IHDCPSession</name>
+            <instance>wifidisplayhdcphal</instance>
+        </interface>
+    </hal>
+    <hal format="hidl">
+        <name>com.quicinc.cne.api</name>
+        <transport>hwbinder</transport>
+        <version>1.1</version>
+        <interface>
+            <name>IApiService</name>
+            <instance>cnd</instance>
+        </interface>
+    </hal>
+    <hal format="hidl">
+        <name>com.quicinc.cne.server</name>
+        <transport>hwbinder</transport>
+        <version>2.2</version>
+        <interface>
+            <name>IServer</name>
+            <instance>cnd</instance>
+        </interface>
+    </hal>
+    < End of missing HALs -->
+    
     <hal format="hidl">
         <name>vendor.display.color</name>
         <transport>hwbinder</transport>
@@ -338,6 +442,20 @@
             <instance>default</instance>
         </interface>
     </hal>
+    
+    <!-- Missing HAL >
+    <hal format="hidl">
+        <name>vendor.nxp.nxpnfc</name>
+        <transport>hwbinder</transport>
+        <version>1.0</version>
+        <interface>
+            <name>INxpNfc</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
+    < End of missing HAL -->
+    
+    <!-- Extra HAL -->
     <hal format="hidl">
         <name>vendor.lineage.livedisplay</name>
         <transport>hwbinder</transport>
@@ -351,10 +469,12 @@
             <instance>default</instance>
         </interface>
     </hal>
+    <!-- End of extra HAL -->
+    
     <hal format="hidl">
         <name>vendor.qti.data.factory</name>
         <transport>hwbinder</transport>
-        <version>2.3</version>
+        <version>1.0</version>
         <interface>
             <name>IFactory</name>
             <instance>default</instance>
@@ -372,15 +492,14 @@
     <hal format="hidl">
         <name>vendor.qti.gnss</name>
         <transport>hwbinder</transport>
+        <version>1.0</version>
         <interface>
             <name>ILocHidlGnss</name>
             <instance>gnss_vendor</instance>
         </interface>
-        <fqname>@1.2::ILocHidlGnss/gnss_vendor</fqname>
-        <fqname>@2.1::ILocHidlGnss/gnss_vendor</fqname>
-        <fqname>@3.0::ILocHidlGnss/gnss_vendor</fqname>
-        <fqname>@4.0::ILocHidlGnss/gnss_vendor</fqname>
     </hal>
+    
+    <!-- Extra HALs -->
     <hal format="hidl">
         <name>vendor.qti.hardware.cacert</name>
         <transport>hwbinder</transport>
@@ -408,6 +527,8 @@
             <instance>slot1</instance>
         </interface>
     </hal>
+    <!-- End of extra HALs -->
+    
     <hal format="hidl">
         <name>vendor.qti.hardware.data.latency</name>
         <transport>hwbinder</transport>
@@ -417,15 +538,28 @@
             <instance>default</instance>
         </interface>
     </hal>
+    
+    <!-- Missing HALs >
     <hal format="hidl">
         <name>vendor.qti.hardware.factory</name>
         <transport>hwbinder</transport>
-        <version>1.1</version>
+        <version>1.0</version>
         <interface>
             <name>IFactory</name>
             <instance>default</instance>
         </interface>
     </hal>
+    <hal format="hidl">
+        <name>vendor.qti.hardware.perf</name>
+        <transport>hwbinder</transport>
+        <version>1.0</version>
+        <interface>
+            <name>IPerf</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
+    < End of missing HALs -->
+    
     <hal format="hidl">
         <name>vendor.qti.hardware.qdutils_disp</name>
         <transport>hwbinder</transport>
@@ -460,7 +594,7 @@
     <hal format="hidl">
         <name>vendor.qti.hardware.radio.ims</name>
         <transport>hwbinder</transport>
-        <version>1.5</version>
+        <version>1.1</version>
         <interface>
             <name>IImsRadio</name>
             <instance>imsradio0</instance>
@@ -487,7 +621,7 @@
     <hal format="hidl">
         <name>vendor.qti.hardware.radio.qtiradio</name>
         <transport>hwbinder</transport>
-        <version>2.3</version>
+        <version>1.0</version>
         <interface>
             <name>IQtiRadio</name>
             <instance>slot1</instance>
@@ -496,7 +630,7 @@
     <hal format="hidl">
         <name>vendor.qti.hardware.radio.uim</name>
         <transport>hwbinder</transport>
-        <version>1.2</version>
+        <version>1.1</version>
         <interface>
             <name>IUim</name>
             <instance>Uim0</instance>
@@ -539,23 +673,36 @@
         </interface>
     </hal>
     <hal format="hidl">
-        <name>vendor.qti.ims.factory</name>
-        <transport>hwbinder</transport>
-        <version>1.1</version>
-        <interface>
-            <name>IImsFactory</name>
-            <instance>default</instance>
-        </interface>
-    </hal>
-    <hal format="hidl">
         <name>vendor.qti.imsrtpservice</name>
         <transport>hwbinder</transport>
-        <version>3.0</version>
+        <version>1.0</version>
         <interface>
             <name>IRTPService</name>
             <instance>imsrtpservice</instance>
         </interface>
     </hal>
+    
+    <!-- Missing HALs >
+    <hal format="hidl">
+        <name>vendor.semc.hardware.charger</name>
+        <transport>hwbinder</transport>
+        <version>1.0</version>
+        <interface>
+            <name>ICharger</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
+    <hal format="hidl">
+        <name>vendor.semc.hardware.display</name>
+        <transport>hwbinder</transport>
+        <version>1.0</version>
+        <interface>
+            <name>IDisplay</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
+    < End of missing HALs -->
+    
     <hal format="hidl">
         <name>vendor.semc.hardware.light</name>
         <transport>hwbinder</transport>
@@ -583,6 +730,19 @@
             <instance>internal/0</instance>
         </interface>
     </hal>
+    
+    <!-- Missing HAL >
+    <hal format="hidl">
+        <name>vendor.somc.hardware.graphics</name>
+        <transport>hwbinder</transport>
+        <version>1.0</version>
+        <interface>
+            <name>ISomcGfx</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
+    < End of missing HAL -->
+    
     <hal format="hidl">
         <name>vendor.somc.hardware.miscta</name>
         <transport>hwbinder</transport>
@@ -590,6 +750,28 @@
         <interface>
             <name>IMisctaGlobal</name>
             <instance>default</instance>
+        </interface>
+    </hal>
+    
+    <!-- Missing HALs >
+    <hal format="hidl">
+        <name>vendor.somc.hardware.pip</name>
+        <transport>hwbinder</transport>
+        <version>1.0</version>
+        <interface>
+            <name>IPip</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
+    < End of missing HALs -->
+    
+    <hal format="hidl">
+        <name>vendor.somc.hardware.radio</name>
+        <transport>hwbinder</transport>
+        <version>1.0</version>
+        <interface>
+            <name>ISomcHook</name>
+            <instance>somchook</instance>
         </interface>
     </hal>
     <hal format="hidl">
@@ -601,4 +783,43 @@
             <instance>default</instance>
         </interface>
     </hal>
+    
+    <!-- Missing HALs>
+    <hal format="hidl">
+        <name>vendor.somc.hardware.superstamina</name>
+        <transport>hwbinder</transport>
+        <version>1.0</version>
+        <interface>
+            <name>ISuperStamina</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
+    <hal format="hidl">
+        <name>vendor.somc.hardware.swiqi</name>
+        <transport>hwbinder</transport>
+        <version>1.0</version>
+        <interface>
+            <name>IHidlSwiqi</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
+    <hal format="hidl">
+        <name>vendor.somc.hardware.wifi</name>
+        <transport>hwbinder</transport>
+        <version>2.0</version>
+        <interface>
+            <name>ISomcWifi</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
+    <hal format="hidl">
+        <name>vendor.somc.hardware.wifidriver</name>
+        <transport>hwbinder</transport>
+        <version>1.0</version>
+        <interface>
+            <name>ISomcWifiDriver</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
+    < End of missing HALs -->
 </manifest>

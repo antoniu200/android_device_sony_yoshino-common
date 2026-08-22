@@ -31,7 +31,8 @@ persist.vendor.qmi_log_on            u:object_r:oneplus_prop:s0
 persist.vendor.timeadjust            u:object_r:vendor_timekeep_prop:s0
 persist.vendor.data.target_id        u:object_r:vendor_target_id_prop:s0
 
-rild.libpath                         u:object_r:vendor_rild_libpath_prop:s0
+rild.libpath                         u:object_r:rild_prop:s0
+rild.libargs                         u:object_r:rild_prop:s0
 
 ro.network.auto_selection_only       u:object_r:vendor_radio_prop:s0
 
