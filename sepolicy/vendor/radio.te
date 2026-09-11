@@ -32,3 +32,5 @@ get_prop(radio, vendor_semc_version_cust_active_prop)
 
 # persist.sys.sim_config_ids
 set_prop(radio, semc_sim_prop)
+
+allow radio hal_somc_radio_hwservice:hwservice_manager find;
