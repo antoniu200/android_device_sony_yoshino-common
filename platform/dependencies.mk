@@ -67,10 +67,6 @@ PRODUCT_PACKAGES += \
     libavservices_minijail.vendor \
     libqdMetaData.system
 
-### NETMGR
-PRODUCT_PACKAGES += \
-    librmnetctl
-
 ### OMX
 PRODUCT_PACKAGES += \
     libOmxAacEnc \
