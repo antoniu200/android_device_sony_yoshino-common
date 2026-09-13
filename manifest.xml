@@ -498,8 +498,6 @@
             <instance>gnss_vendor</instance>
         </interface>
     </hal>
-    
-    <!-- Extra HALs -->
     <hal format="hidl">
         <name>vendor.qti.hardware.cacert</name>
         <transport>hwbinder</transport>
@@ -526,9 +524,7 @@
             <name>IIWlan</name>
             <instance>slot1</instance>
         </interface>
-    </hal>
-    <!-- End of extra HALs -->
-    
+    </hal>    
     <hal format="hidl">
         <name>vendor.qti.hardware.data.latency</name>
         <transport>hwbinder</transport>
@@ -549,6 +545,7 @@
             <instance>default</instance>
         </interface>
     </hal>
+    < End of missing HALs -->
     <hal format="hidl">
         <name>vendor.qti.hardware.perf</name>
         <transport>hwbinder</transport>
@@ -558,7 +555,6 @@
             <instance>default</instance>
         </interface>
     </hal>
-    < End of missing HALs -->
     
     <hal format="hidl">
         <name>vendor.qti.hardware.qdutils_disp</name>
