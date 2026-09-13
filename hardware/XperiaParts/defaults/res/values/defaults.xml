@@ -1,0 +1,7 @@
+<resources>
+    <bool name="default_cs_ims">true</bool>
+    <bool name="default_cs_re_apply_modem">false</bool>
+    <bool name="default_cs_notification">false</bool>
+    <bool name="default_ns_service">false</bool>
+    <integer name="default_ns_lower_network">3</integer> <!--> GSM <-->
+</resources>

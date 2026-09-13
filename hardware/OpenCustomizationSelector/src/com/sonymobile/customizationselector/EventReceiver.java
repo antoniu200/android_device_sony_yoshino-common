@@ -79,7 +79,8 @@ public class EventReceiver extends BroadcastReceiver {
         NotificationManager manager = context.getSystemService(NotificationManager.class);
         createChannel(manager);
 
-        if (Settings.System.getInt(context.getContentResolver(), CS_NOTIFICATION, 1) == 1) {
+        if (Settings.System.getInt(context.getContentResolver(), CS_NOTIFICATION,
+                                   context.getResources().getBoolean(R.bool.default_cs_notification) ? 1 : 0) == 1) {
             manager.notify(1, new NotificationCompat.Builder(context, CHANNEL_ID)
                     .setContentTitle(CHANNEL_ID)
                     .setContentText("Status: ...")

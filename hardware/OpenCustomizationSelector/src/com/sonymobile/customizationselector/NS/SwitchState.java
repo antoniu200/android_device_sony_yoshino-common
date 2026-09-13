@@ -2,6 +2,7 @@ package com.sonymobile.customizationselector.NS;
 
 import com.sonymobile.customizationselector.CSLog;
 import com.sonymobile.customizationselector.CommonUtil;
+import com.sonymobile.customizationselector.R;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -150,7 +151,8 @@ public class SwitchState {
      */
     public @TelephonyManager.NetworkTypeBitMask long getLowerNetwork() {
         return RadioAccessFamily.getRafFromNetworkType(
-            Settings.System.getInt(mContent, NS_LOWER_NETWORK, TelephonyManager.NETWORK_MODE_WCDMA_PREF));
+            Settings.System.getInt(mContent, NS_LOWER_NETWORK,
+                          mContext.getResources().getInteger(R.integer.default_ns_lower_network)));
     }
 
     /**

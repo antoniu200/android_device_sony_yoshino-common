@@ -34,6 +34,7 @@ android_app {
     privileged: true,
 
     static_libs: [
+        "XperiaPartsSettingsDefaults",
         "androidx.core_core",
         "androidx.preference_preference",
         "androidx.appcompat_appcompat",
@@ -43,6 +44,13 @@ android_app {
     required: [
         "privapp-permissions_com.yoshino.parts"
     ],
+}
+
+android_library {
+    name: "XperiaPartsSettingsDefaults",
+
+    manifest: "defaults/AndroidManifest.xml",
+    resource_dirs: ["defaults/res"],
 }
 
 prebuilt_etc {

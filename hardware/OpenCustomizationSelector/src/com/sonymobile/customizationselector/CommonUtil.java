@@ -28,7 +28,8 @@ public class CommonUtil {
     public static final String CS_IMS = "cs_ims";
 
     public static boolean isIMSEnabledBySetting(Context context) {
-        return Settings.System.getInt(context.getContentResolver(), CS_IMS, 1) == 1;
+        return Settings.System.getInt(context.getContentResolver(), CS_IMS, 
+                                      context.getResources().getBoolean(R.bool.default_cs_ims) ? 1 : 0) == 1;
     }
 
     public static PersistableBundle getCarrierBundle(Context context) {

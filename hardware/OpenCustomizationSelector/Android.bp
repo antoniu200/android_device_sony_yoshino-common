@@ -33,6 +33,7 @@ android_app {
     enforce_uses_libs: false,
 
     static_libs: [
+        "XperiaPartsSettingsDefaults",
         "androidx.core_core",
         "androidx.preference_preference",
         "androidx.appcompat_appcompat",

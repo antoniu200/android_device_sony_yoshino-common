@@ -45,21 +45,21 @@
             android:title="@string/status" />
 
         <SwitchPreference
-            android:defaultValue="true"
+            android:defaultValue="@bool/default_cs_ims"
             android:icon="@drawable/ic_outline_wifi_calling_24"
             android:key="cs_ims"
             android:summary="@string/ims_summary"
             android:title="@string/ims_title" />
 
         <SwitchPreference
-            android:defaultValue="true"
+            android:defaultValue="@bool/default_cs_re_apply_modem"
             android:icon="@drawable/ic_outline_phonelink_setup_24"
             android:key="cs_re_apply_modem"
             android:summary="@string/modem_summary"
             android:title="@string/modem_title" />
 
         <SwitchPreference
-            android:defaultValue="true"
+            android:defaultValue="@bool/default_cs_notification"
             android:icon="@drawable/ic_outline_notifications_active_24"
             android:key="cs_notification"
             android:summary="@string/sony_modem_notification_summary"
@@ -91,7 +91,7 @@
             android:title="@string/sim_slot" />
 
         <SwitchPreference
-            android:defaultValue="false"
+            android:defaultValue="@bool/default_ns_service"
             android:enabled="false"
             android:icon="@drawable/ic_round_import_export_24"
             android:key="ns_service"
@@ -101,7 +101,7 @@
         <Preference
             android:icon="@drawable/ic_round_import_export_24"
             android:key="ns_lowNet"
-            android:defaultValue="3"
+            android:defaultValue="@integer/default_ns_lower_network"
             android:summary="@string/lower_network_summary"
             android:title="@string/lower_network" />
 

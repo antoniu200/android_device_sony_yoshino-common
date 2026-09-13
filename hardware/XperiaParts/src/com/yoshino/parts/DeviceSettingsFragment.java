@@ -41,6 +41,16 @@ public class DeviceSettingsFragment extends PreferenceFragment implements Prefer
     private Intent make_CS_ActivityIntent(String className) {
         return new Intent().setClassName(CS_PACKAGE_NAME, CS_PACKAGE_NAME + "." + className);
     }
+    
+    private void loadSystemSetting(SwitchPreference preference) {
+        String value = Settings.System.getString(
+                preference.getContext().getContentResolver(),
+                preference.getKey());
+
+        if (value != null) {
+            preference.setChecked("1".equals(value));
+        }
+    }
 
     @Override
     public void onCreatePreferences(Bundle bundle, String key) {
@@ -48,18 +58,17 @@ public class DeviceSettingsFragment extends PreferenceFragment implements Prefer
 
         final SwitchPreference glovePref = findPreference(GLOVE_MODE);
         assert glovePref != null;
-        glovePref.setChecked(Settings.System.getInt(glovePref.getContext().getContentResolver(), GLOVE_MODE, 0) == 1);
+        loadSystemSetting(glovePref);
         glovePref.setOnPreferenceChangeListener(this);
 
         final SwitchPreference smartStaminPref = findPreference(SMART_STAMINA_MODE);
         assert smartStaminPref != null;
-        smartStaminPref.setChecked(Settings.System.getInt(smartStaminPref.getContext().getContentResolver(), SMART_STAMINA_MODE, 0) == 1);
+        loadSystemSetting(smartStaminPref);
         smartStaminPref.setOnPreferenceChangeListener(this);
 
         final SwitchPreference notificationPref = findPreference(CS_NOTIFICATION);
         assert notificationPref != null;
-        notificationPref.setChecked(Settings.System.getInt(notificationPref.getContext().getContentResolver(),
-                CS_NOTIFICATION, 1) == 1);
+        loadSystemSetting(notificationPref);
         notificationPref.setOnPreferenceChangeListener(this);
 
         findPreference(CS_STATUS).setOnPreferenceClickListener(preference -> {
@@ -117,13 +126,13 @@ public class DeviceSettingsFragment extends PreferenceFragment implements Prefer
                 slotPref.setVisible(false);
                 nsService.setEnabled(true);
             }
-            nsService.setChecked(Settings.System.getInt(nsService.getContext().getContentResolver(), NS_SERVICE, 0) == 1);
+            loadSystemSetting(nsService);
             nsService.setOnPreferenceChangeListener(this);
 
             updateLowerNetworkPref(nsLowerNetwork, nsService.isChecked());
             nsLowerNetwork.setOnPreferenceClickListener(preference -> {
                 final ContentResolver resolver = preference.getContext().getContentResolver();
-                int network = getLowerNetwork(resolver);
+                int network = getLowerNetwork(preference.getContext());
                 if (network == TelephonyManager.NETWORK_MODE_WCDMA_PREF)
                     network = TelephonyManager.NETWORK_MODE_GSM_ONLY;
                 else if (network == TelephonyManager.NETWORK_MODE_GSM_ONLY)
@@ -138,18 +147,12 @@ public class DeviceSettingsFragment extends PreferenceFragment implements Prefer
 
         final SwitchPreference imsPref = findPreference(CS_IMS);
         assert imsPref != null;
-        if (Settings.System.getInt(imsPref.getContext().getContentResolver(), CS_IMS, 1) == 0) {
-            imsPref.setChecked(false);
-            notificationPref.setEnabled(false);
-            msActPref.setEnabled(false);
-        } else {
-            imsPref.setChecked(true);
-            notificationPref.setEnabled(true);
-            msActPref.setEnabled(true);
-        }
+        loadSystemSetting(imsPref);
+        notificationPref.setEnabled(imsPref.isChecked());
+        msActPref.setEnabled(imsPref.isChecked());
         imsPref.setOnPreferenceClickListener(preference -> {
-            final int ims = Settings.System.getInt(imsPref.getContext().getContentResolver(), CS_IMS, 1);
-            if (ims == 1) {
+            final boolean ims = imsPref.isChecked();
+            if (ims == false) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(imsPref.getContext());
                 builder.setCancelable(false);
                 builder.setTitle("Disable IMS features ?");
@@ -158,7 +161,6 @@ public class DeviceSettingsFragment extends PreferenceFragment implements Prefer
                 builder.setPositiveButton("Disable", (dialogInterface, i) -> {
                     dialogInterface.dismiss();
                     Settings.System.putInt(imsPref.getContext().getContentResolver(), CS_IMS, 0);
-                    imsPref.setChecked(false);
                     notificationPref.setEnabled(false);
                     msActPref.setEnabled(false);
 
@@ -170,7 +172,7 @@ public class DeviceSettingsFragment extends PreferenceFragment implements Prefer
                 });
                 builder.create().show();
             }
-            if (ims == 0) {
+            if (ims == true) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(imsPref.getContext());
                 builder.setCancelable(false);
                 builder.setTitle("Enable IMS features?");
@@ -180,7 +182,6 @@ public class DeviceSettingsFragment extends PreferenceFragment implements Prefer
                 builder.setPositiveButton("Enable", (dialogInterface, i) -> {
                     dialogInterface.dismiss();
                     Settings.System.putInt(imsPref.getContext().getContentResolver(), CS_IMS, 1);
-                    imsPref.setChecked(true);
                     notificationPref.setEnabled(true);
                     msActPref.setEnabled(true);
 
@@ -197,24 +198,23 @@ public class DeviceSettingsFragment extends PreferenceFragment implements Prefer
 
         final SwitchPreference modemPref = findPreference(CS_RE_APPLY_MODEM);
         assert modemPref != null;
-        modemPref.setChecked(Settings.System.getInt(modemPref.getContext().getContentResolver(), CS_RE_APPLY_MODEM, 1) == 1);
+        loadSystemSetting(modemPref);
         modemPref.setOnPreferenceClickListener(preference -> {
-            final int applyModem = Settings.System.getInt(modemPref.getContext().getContentResolver(), CS_RE_APPLY_MODEM, 1);
+            final boolean applyModem = modemPref.isChecked();
 
             final AlertDialog.Builder builder = new AlertDialog.Builder(modemPref.getContext());
             builder.setCancelable(false);
             builder.setTitle("Reboot required");
-            builder.setMessage("A reboot is required to " + (applyModem == 0 ? "enable" : "disable") + " this feature. Are you sure you want to reboot ?");
+            builder.setMessage("A reboot is required to " + (applyModem ? "enable" : "disable") + " this feature. Are you sure you want to reboot ?");
             builder.setPositiveButton("Reboot", (dialogInterface, i) -> {
                 dialogInterface.dismiss();
-                Settings.System.putInt(modemPref.getContext().getContentResolver(), CS_RE_APPLY_MODEM, (applyModem ^ 1));
-                modemPref.setChecked(applyModem == 0);
+                Settings.System.putInt(modemPref.getContext().getContentResolver(), CS_RE_APPLY_MODEM, (applyModem ? 1 : 0));
 
                 sendBroadcast(preference.getContext(), CS_RE_APPLY_MODEM);
             });
             builder.setNegativeButton(R.string.cancel_button_label, (dialogInterface, i) -> {
                 dialogInterface.dismiss();
-                modemPref.setChecked(applyModem == 1);
+                modemPref.setChecked(!applyModem);
             });
             builder.create().show();
             return true;
@@ -243,9 +243,10 @@ public class DeviceSettingsFragment extends PreferenceFragment implements Prefer
         }).execute();
     }
 
-    private static int getLowerNetwork(ContentResolver resolver)
+    private static int getLowerNetwork(Context context)
     {
-        return Settings.System.getInt(resolver, NS_LOWER_NETWORK, TelephonyManager.NETWORK_MODE_WCDMA_PREF);
+        return Settings.System.getInt(context.getContentResolver(), NS_LOWER_NETWORK,
+                                      context.getResources().getInteger(R.integer.default_ns_lower_network));
     }
 
     private static String getNetworkName(int network) {
@@ -263,7 +264,7 @@ public class DeviceSettingsFragment extends PreferenceFragment implements Prefer
     }
 
     private static void updateLowerNetworkPref(Preference lnPref, boolean enabled) {
-        int network = getLowerNetwork(lnPref.getContext().getContentResolver());
+        int network = getLowerNetwork(lnPref.getContext());
         lnPref.setSummary(lnPref.getContext().getString(R.string.lower_network_summary) + getNetworkName(network));
         lnPref.setEnabled(enabled);
     }
