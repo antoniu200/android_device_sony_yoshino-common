@@ -44,6 +44,7 @@
 #include "hwc_display_dummy.h"
 #include "hwc_color_manager.h"
 #include "hwc_socket_handler.h"
+#include "hwc_sunlight_enhancement.h"
 
 namespace sdm {
 
@@ -343,6 +344,7 @@ class HWCSession : hwc2_device_t, HWCUEventListener, IDisplayConfig, public qCli
   HWCBufferAllocator buffer_allocator_;
   HWCBufferSyncHandler buffer_sync_handler_;
   HWCColorManager *color_mgr_ = nullptr;
+  android::sp<HWCSunlightEnhancement> sunlight_enhancement_;
   bool reset_panel_ = false;
   bool secure_display_active_ = false;
   bool external_pending_connect_ = false;

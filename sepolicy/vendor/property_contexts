@@ -36,6 +36,8 @@ rild.libargs                         u:object_r:rild_prop:s0
 
 ro.network.auto_selection_only       u:object_r:vendor_radio_prop:s0
 
+ro.qcom.ad                           u:object_r:qcom_ad_prop:s0 exact int
+
 ro.semc.version.                     u:object_r:semc_version_prop:s0
 ro.semc.product.                     u:object_r:semc_product_prop:s0
 ro.somc.secureadb                    u:object_r:secureadb_prop:s0

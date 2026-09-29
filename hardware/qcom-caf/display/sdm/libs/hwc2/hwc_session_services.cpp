@@ -50,6 +50,19 @@ void HWCSession::StartServices() {
   } else {
     ALOGI("%s::%s: IDisplayConfig service registration completed.", __CLASS__, __FUNCTION__);
   }
+
+  if (HWCSunlightEnhancement::IsSupported()) {
+    sunlight_enhancement_ = new HWCSunlightEnhancement();
+    status = sunlight_enhancement_->registerAsService();
+    if (status != OK) {
+      ALOGW("%s::%s: Could not register ISunlightEnhancement as service (%d).",
+            __CLASS__, __FUNCTION__, status);
+      sunlight_enhancement_.clear();
+    } else {
+      ALOGI("%s::%s: ISunlightEnhancement service registration completed.",
+            __CLASS__, __FUNCTION__);
+    }
+  }
 }
 
 int MapDisplayType(IDisplayConfig::DisplayType dpy) {
