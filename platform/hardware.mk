@@ -37,8 +37,7 @@ PRODUCT_PACKAGES += \
 
 ### DISPLAY
 PRODUCT_PACKAGES += \
-    vendor.display.config@1.3 \
-    AssertiveDisplayRegistrar
+    vendor.display.config@1.3
 
 ### GRAPHICS
 PRODUCT_PACKAGES += \
@@ -173,7 +172,8 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     android.hardware.power@1.2 \
     android.hardware.power@1.2.vendor \
-    android.hardware.power-service.yoshino-libperfmgr
+    android.hardware.power-service.yoshino-libperfmgr \
+    vendor.qti.hardware.perf@1.0.vendor
 
 # RADIO
 PRODUCT_PACKAGES += \

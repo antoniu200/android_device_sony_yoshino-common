@@ -39,19 +39,11 @@ service vendor.ppd /vendor/bin/mm-pp-dpps
     socket pps stream 0660 system system
     disabled
     
-service vendor.ppd-ad-enable /vendor/bin/AssertiveDisplayRegistrar
-    class late_start
-    user system
-    group system
-    disabled
-    oneshot
-
 on property:init.svc.vendor.hwcomposer-2-3=stopped
     stop vendor.ppd
 
 on property:init.svc.vendor.hwcomposer-2-3=running
     start vendor.ppd
-    start vendor.ppd-ad-enable
 
 on property:init.svc.vendor.hwcomposer-2-3=restarting
     stop vendor.ppd
