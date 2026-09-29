@@ -1,0 +1,3 @@
+# Allow LiveDisplay to read the factory PCC coefficients from
+# /sys/devices/mdss_dsi_panel/{cc,srgb_cc,vivid_cc}.
+allow hal_lineage_livedisplay_qti sysfs_dsi_panel:file r_file_perms;
