@@ -357,12 +357,6 @@ int HWCColorManager::SetDetailedEnhancer(void *params, HWCDisplay *hwc_display) 
   return err;
 }
 
-const HWCQDCMModeManager::ActiveFeatureCMD HWCQDCMModeManager::kActiveFeatureCMD[] = {
-    HWCQDCMModeManager::ActiveFeatureCMD("cabl:on", "cabl:off", "cabl:status", "running"),
-    HWCQDCMModeManager::ActiveFeatureCMD("ad:on", "ad:off", "ad:query:status", "running"),
-    HWCQDCMModeManager::ActiveFeatureCMD("svi:on", "svi:off", "svi:status", "running"),
-};
-
 const char *const HWCQDCMModeManager::kSocketName = "pps";
 const char *const HWCQDCMModeManager::kTagName = "surfaceflinger";
 const char *const HWCQDCMModeManager::kPackageName = "colormanager";
@@ -393,9 +387,12 @@ HWCQDCMModeManager::~HWCQDCMModeManager() {
     ::close(socket_fd_);
 }
 
-int HWCQDCMModeManager::EnableActiveFeatures(bool enable,
-                                             const HWCQDCMModeManager::ActiveFeatureCMD &cmds,
-                                             bool *was_running) {
+int HWCQDCMModeManager::EnableCABLForQDCM(bool enable) {
+  static const char kCABLOn[] = "cabl:on";
+  static const char kCABLOff[] = "cabl:off";
+  static const char kCABLStatus[] = "cabl:status";
+  static const char kCABLRunning[] = "running";
+
   int ret = 0;
   ssize_t size = 0;
   char response[kSocketCMDMaxLength] = {
@@ -407,9 +404,9 @@ int HWCQDCMModeManager::EnableActiveFeatures(bool enable,
     return -EFAULT;
   }
 
-  if (!enable) {  // if client requesting to disable it.
-    // query CABL status, if off, no action. keep the status.
-    size = ::write(socket_fd_, cmds.cmd_query_status, strlen(cmds.cmd_query_status));
+  if (!enable) {
+    // Query CABL status before entering QDCM mode and disable it only if it was running.
+    size = ::write(socket_fd_, kCABLStatus, strlen(kCABLStatus));
     if (size < 0) {
       DLOGW("Unable to send data over socket %s", ::strerror(errno));
       ret = -EFAULT;
@@ -418,25 +415,24 @@ int HWCQDCMModeManager::EnableActiveFeatures(bool enable,
       if (size < 0) {
         DLOGW("Unable to read data over socket %s", ::strerror(errno));
         ret = -EFAULT;
-      } else if (!strncmp(response, cmds.running, strlen(cmds.running))) {
-        *was_running = true;
+      } else if (!strncmp(response, kCABLRunning, strlen(kCABLRunning))) {
+        cabl_was_running_ = true;
       }
     }
 
-    if (*was_running) {  // if was running, it's requested to disable it.
-      size = ::write(socket_fd_, cmds.cmd_off, strlen(cmds.cmd_off));
+    if (cabl_was_running_) {
+      size = ::write(socket_fd_, kCABLOff, strlen(kCABLOff));
       if (size < 0) {
         DLOGW("Unable to send data over socket %s", ::strerror(errno));
         ret = -EFAULT;
       }
     }
-  } else {  // if was running, need enable it back.
-    if (*was_running) {
-      size = ::write(socket_fd_, cmds.cmd_on, strlen(cmds.cmd_on));
-      if (size < 0) {
-        DLOGW("Unable to send data over socket %s", ::strerror(errno));
-        ret = -EFAULT;
-      }
+  } else if (cabl_was_running_) {
+    // Restore CABL when leaving QDCM mode if it was running on entry.
+    size = ::write(socket_fd_, kCABLOn, strlen(kCABLOn));
+    if (size < 0) {
+      DLOGW("Unable to send data over socket %s", ::strerror(errno));
+      ret = -EFAULT;
     }
   }
 
@@ -446,8 +442,7 @@ int HWCQDCMModeManager::EnableActiveFeatures(bool enable,
 int HWCQDCMModeManager::EnableQDCMMode(bool enable, HWCDisplay *hwc_display) {
   int ret = 0;
 
-  ret = EnableActiveFeatures((enable ? false : true), kActiveFeatureCMD[kCABLFeature],
-                             &cabl_was_running_);
+  ret = EnableCABLForQDCM(!enable);
 
   // if enter QDCM mode, disable GPU fallback idle timeout.
   if (hwc_display) {

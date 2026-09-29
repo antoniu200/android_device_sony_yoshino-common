@@ -60,23 +60,6 @@ class HWCQDCMModeManager {
   static const uint32_t kFullWakeLock = 0x0000001a;
   static const uint32_t kAcquireCauseWakeup = 0x10000000;
   static const uint32_t kONAfterRelease = 0x20000000;
-  enum ActiveFeatureID {
-    kCABLFeature,
-    kADFeature,
-    kSVIFeature,
-    kMaxNumActiveFeature,
-  };
-
-  struct ActiveFeatureCMD {
-    const char *cmd_on = NULL;
-    const char *cmd_off = NULL;
-    const char *cmd_query_status = NULL;
-    const char *running = NULL;
-    ActiveFeatureCMD(const char *arg1, const char *arg2, const char *arg3, const char *arg4)
-        : cmd_on(arg1), cmd_off(arg2), cmd_query_status(arg3), running(arg4) {}
-  };
-
-  static const ActiveFeatureCMD kActiveFeatureCMD[kMaxNumActiveFeature];
 
  public:
   static HWCQDCMModeManager *CreateQDCMModeMgr();
@@ -84,10 +67,8 @@ class HWCQDCMModeManager {
   int EnableQDCMMode(bool enable, HWCDisplay *hwc_display);
 
  protected:
-  bool SendSocketCmd();
   int AcquireAndroidWakeLock(bool enable);
-  int EnableActiveFeatures(bool enable);
-  int EnableActiveFeatures(bool enable, const ActiveFeatureCMD &cmds, bool *was_running);
+  int EnableCABLForQDCM(bool enable);
 
  private:
   bool cabl_was_running_ = false;

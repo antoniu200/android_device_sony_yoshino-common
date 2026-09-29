@@ -58,15 +58,7 @@ ifeq ($(call is-board-platform-in-list, $(MASTER_SIDE_CP_TARGET_LIST)), true)
     common_flags += -DMASTER_SIDE_CP
 endif
 
-use_hwc2 := false
-ifeq ($(TARGET_USES_HWC2), true)
-    use_hwc2 := true
-    common_flags += -DVIDEO_MODE_DEFER_RETIRE_FENCE
-endif
-
-ifeq ($(TARGET_USES_GRALLOC1), true)
-    common_flags += -DUSE_GRALLOC1
-endif
+common_flags += -DVIDEO_MODE_DEFER_RETIRE_FENCE
 
 #Common libraries external to display HAL
 common_libs := liblog libutils libcutils libhardware

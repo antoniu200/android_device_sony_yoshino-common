@@ -72,19 +72,35 @@ DisplayError CPUHint::Init(HWCDebugHandler *debug_handler) {
 
 void CPUHint::Set() {
   if (!enabled_) {
+    DLOGI("CPUHint Set: disabled");
     return;
   }
+
   if (lock_acquired_) {
     return;
   }
+
   if (frame_countdown_) {
     --frame_countdown_;
+    if (frame_countdown_ == 49 ||
+        frame_countdown_ == 10 ||
+        frame_countdown_ == 1 ||
+        frame_countdown_ == 0) {
+      DLOGI("CPUHint Set: countdown=%d", frame_countdown_);
+    }
     return;
   }
 
   int hint = HINT;
-  lock_handle_ = fn_lock_acquire_(0 /*handle*/, 0/*duration*/,
+
+  DLOGI("CPUHint acquire attempt hint=0x%x", hint);
+
+  lock_handle_ = fn_lock_acquire_(0 /*handle*/, 0 /*duration*/,
                                   &hint, sizeof(hint) / sizeof(int));
+
+  DLOGI("CPUHint acquire result hint=0x%x handle=%d",
+        hint, lock_handle_);
+
   if (lock_handle_ >= 0) {
     lock_acquired_ = true;
   }
@@ -101,8 +117,12 @@ void CPUHint::Reset() {
     return;
   }
 
+  DLOGI("CPUHint release handle=%d", lock_handle_);
+
   fn_lock_release_(lock_handle_);
+
   lock_acquired_ = false;
+  lock_handle_ = -1;
 }
 
 }  // namespace sdm
