@@ -19,6 +19,9 @@ allow radio hal_miscta_hwservice:hwservice_manager find;
 # Allow android.phone to read ims prop
 get_prop(radio, vendor_qcom_ims_prop)
 
+# Sony SIM hotplug: receive sim_detect kernel uevents.
+allow radio self:netlink_kobject_uevent_socket { create setopt bind read };
+
 # Allow CustomizationSelector look for /cache/modem/ on /cache
 allow radio cache_file:dir search;
 
