@@ -54,6 +54,7 @@
 # DCM
 /dev/cxd224x-i2c                                                u:object_r:nfc_device:s0
 /dev/bd7602-i2c                                                 u:object_r:nfc_device:s0
+/(vendor|system/vendor)/bin/hw/android\.hardware\.nfc@1\.1-service\.cxd22xx  u:object_r:hal_nfc_default_exec:s0
 
 # DRM
 /(vendor|system/vendor)/bin/hw/android\.hardware\.drm@1\.1-service\.widevine u:object_r:hal_drm_widevine_exec:s0
