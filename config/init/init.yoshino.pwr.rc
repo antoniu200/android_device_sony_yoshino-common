@@ -23,9 +23,12 @@ on init
     write /dev/stune/schedtune.prefer_idle 1
     write /dev/stune/schedtune.boost 100
 
+    # Limit big cores during boot, to avoid overheating
+    write /sys/devices/system/cpu/cpu4/cpufreq/scaling_max_freq 1958400
+
     # set default schedTune value for foreground/top-app
     write /dev/stune/foreground/schedtune.prefer_idle 1
-    write /dev/stune/top-app/schedtune.boost 10
+    write /dev/stune/top-app/schedtune.boost 0
     write /dev/stune/top-app/schedtune.prefer_idle 1
 
     # Enable bus-dcvs
@@ -121,7 +124,7 @@ on property:sys.boot_completed=1
     write /sys/devices/system/cpu/cpu0/cpufreq/schedutil/up_rate_limit_us 500
     write /sys/devices/system/cpu/cpu0/cpufreq/schedutil/down_rate_limit_us 20000
     write /sys/devices/system/cpu/cpu0/cpufreq/schedutil/iowait_boost_enable 0
-    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq 518400
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq 300000
 
     # Configure governor for big cluster
     write /sys/devices/system/cpu/cpu4/online 1
@@ -129,7 +132,8 @@ on property:sys.boot_completed=1
     write /sys/devices/system/cpu/cpu4/cpufreq/schedutil/up_rate_limit_us 500
     write /sys/devices/system/cpu/cpu4/cpufreq/schedutil/down_rate_limit_us 20000
     write /sys/devices/system/cpu/cpu4/cpufreq/schedutil/iowait_boost_enable 0
-    write /sys/devices/system/cpu/cpu4/cpufreq/scaling_min_freq 806400
+    write /sys/devices/system/cpu/cpu4/cpufreq/scaling_min_freq 300000
+    write /sys/devices/system/cpu/cpu4/cpufreq/scaling_max_freq 2457600
 
     # Re-enable thermal
     write /sys/module/msm_thermal/core_control/enabled 1

@@ -97,7 +97,8 @@ PRODUCT_PACKAGES += \
     android.hardware.camera.provider@2.4-impl:32 \
     camera.device@3.2-impl:32 \
     vendor.qti.hardware.camera.device@1.0 \
-    vendor.qti.hardware.camera.device@1.0.vendor
+    vendor.qti.hardware.camera.device@1.0.vendor \
+    libcamfix_bufmgr:32
 
 # CONFIGSTORE
 PRODUCT_PACKAGES += \
