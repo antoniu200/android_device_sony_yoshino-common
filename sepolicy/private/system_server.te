@@ -1,0 +1,4 @@
+# Process reclaim: CachedAppOptimizer falls back to writing /proc/<pid>/reclaim
+# (kernel 4.4 has no process_madvise). The kernel file mode is 0222; this rule
+# is what actually limits who may write it (hidepid=2 also hides other pids).
+allow system_server appdomain:file { open write };

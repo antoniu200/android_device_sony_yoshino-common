@@ -538,6 +538,10 @@ on property:sys.boot_completed=1
     write /sys/module/lowmemorykiller/parameters/adj_max_shift 606
     write /sys/module/lowmemorykiller/parameters/vmpressure_file_min 105984
     write /sys/module/lowmemorykiller/parameters/enable_adaptive_lmk 0
+    # Kernel LMK levels (pages). The framework sends its own table to lmkd earlier in
+    # boot; this runs after that. Rows are oom_score_adj 0,100,200,250,900,950:
+    # 90, 108, 126, 352, 469, 664 MiB.
+    write /sys/module/lowmemorykiller/parameters/minfree 23040,27648,32256,90000,120000,170000
     write /sys/module/vmpressure/parameters/allocstall_threshold 0
     write /proc/sys/vm/swappiness 100
 
